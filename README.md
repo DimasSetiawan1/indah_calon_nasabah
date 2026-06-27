@@ -1,66 +1,78 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Rekomendasi Kelayakan Nasabah (BWM & TOPSIS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Repositori ini memuat *source code* untuk skripsi dengan judul:
+**"INTEGRASI BEST WORST METHOD (BWM) DAN TOPSIS DALAM MEREKOMENDASIKAN KELAYAKAN CALON NASABAH PADA PT FEDERAL INTERNASIONAL FINANCE"**
 
-## About Laravel
+Sistem ini dibangun menggunakan *framework* web **Laravel 11** dan **Bootstrap CSS** untuk antarmuka yang bersih dan responsif.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Alur Perhitungan Sistem (Logika Metode)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Sistem ini menggabungkan dua metode pengambilan keputusan multikriteria (MCDM), yaitu **BWM** untuk mencari bobot, dan **TOPSIS** untuk merangking alternatif. Berikut adalah bedah alur logika perhitungan di dalam kode programnya:
 
-## Learning Laravel
+### Fase 1: Perhitungan Bobot Kriteria dengan BWM
+Tujuan dari metode ini adalah untuk mendapatkan **bobot yang adil** ($w_j$) untuk setiap kriteria penilaian.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+📍 **Lokasi Logika Kode:** `app/Http/Controllers/BwmController.php` (fungsi `calculate()`).
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Cara Hitung di Sistem:**
+Karena bahasa pemrograman web (PHP) pada dasarnya tidak memiliki pemecah masalah optimasi rumit (*linear/non-linear solver*) secara bawaan, sistem ini menggunakan **aproksimasi analitik BWM** yang sangat lazim dan andal digunakan di sistem web agar prosesnya cepat namun tetap akurat.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Penentuan Best & Worst:** Pengguna memilih 1 Kriteria Terbaik (*Best*) dan 1 Terburuk (*Worst*).
+2. **Matriks BO & OW:**
+   * **BO (Best-to-Others):** Seberapa penting kriteria *Best* dibandingkan kriteria lain (skala 1-9).
+   * **OW (Others-to-Worst):** Seberapa penting kriteria lain dibandingkan kriteria *Worst* (skala 1-9).
+3. **Mencari Nilai Bobot ($w_j$):**
+   * Berdasarkan teori, bobot berbanding terbalik dengan nilai BO. Sistem mencari bobot BO dengan rumus pendekatan: $w_{bo} = (1 / BO) / \Sigma (1 / BO)$
+   * Sistem juga mencari bobot dari sisi OW dengan rumus: $w_{ow} = OW / \Sigma OW$
+   * Bobot akhir adalah rata-rata dari keduanya: $w_j = (w_{bo} + w_{ow}) / 2$
+4. **Normalisasi:** Memastikan total semua bobot jika dijumlahkan pasti = 1 (atau 100%). Hasil inilah yang disimpan ke database untuk dikirim ke fase TOPSIS.
 
-## Laravel Sponsors
+### Fase 2: Perangkingan Nasabah dengan TOPSIS
+Tujuan dari fase ini adalah untuk mencari nasabah mana yang paling dekat dengan "Kondisi Sangat Sempurna" dan paling jauh dari "Kondisi Sangat Buruk".
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+📍 **Lokasi Logika Kode:** `app/Http/Controllers/TopsisController.php` (fungsi `calculate()`).
 
-### Premium Partners
+**Langkah-langkah Hitung di Sistem:**
+1. **Membentuk Matriks Keputusan (X):**
+   Sistem mengambil semua nilai asesmen (*assessment*) dari database. Misal: Calon nasabah A punya nilai Penghasilan=5, Status Tempat Tinggal=3, dsb.
+2. **Normalisasi Matriks (R):**
+   Karena satuan dan rentang setiap kriteria berbeda-beda nilainya disamakan (*dinormalisasi*) dengan membagi setiap nilai dengan akar dari jumlah kuadrat seluruh nilai di kriteria tersebut.
+3. **Pembobotan Matriks Normalisasi (V):**
+   Di sinilah letak **integrasinya!** Sistem mengambil **bobot hasil dari BWM tadi** dan mengalikannya dengan matriks normalisasi ($v = r \times \text{bobot\_BWM}$).
+4. **Menentukan Solusi Ideal Positif ($A^+$) dan Negatif ($A^-$):**
+   Sistem mencari nilai maksimal dan minimal dari matriks V.
+   * Jika kriteria **Benefit** (cth: Penghasilan, Uang Muka): $A^+$ adalah nilai terbesar, $A^-$ adalah nilai terkecil.
+   * Jika kriteria **Cost** (cth: Jumlah Tanggungan): $A^+$ adalah nilai terkecil, $A^-$ adalah nilai terbesar.
+5. **Menghitung Jarak ke Solusi Ideal ($D^+$ dan $D^-$):**
+   Sistem mengukur seberapa jauh nilai masing-masing nasabah terhadap kondisi $A^+$ dan $A^-$ menggunakan rumus jarak *Euclidean*.
+6. **Menghitung Nilai Preferensi / Kelayakan (CCi):**
+   Ini adalah nilai metrik akhir (skala 0 sampai 1) dengan rumus: $CC_i = D^- / (D^+ + D^-)$. Semakin besar nilai $CC_i$ (mendekati 1), berarti sangat layak.
+7. **Perangkingan Akhir:**
+   Sistem mengurutkan seluruh calon nasabah dari nilai $CC_i$ terbesar ke terkecil dan menampilkannya di halaman Hasil TOPSIS.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+## Cara Instalasi & Menjalankan Sistem
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Pastikan Anda memiliki PHP (rekomendasi >= 8.2) dan Composer terinstal.
+2. Clone atau ekstrak repositori ini ke dalam direktori komputer Anda.
+3. Buka terminal di dalam folder proyek, jalankan:
+   ```bash
+   composer install
+   ```
+4. Konfigurasi file `.env`. (Secara bawaan menggunakan `sqlite` untuk kemudahan).
+5. Lakukan migrasi beserta *seeder* untuk mengisi data dummy awal:
+   ```bash
+   php artisan migrate:fresh --seed
+   ```
+6. Jalankan server lokal:
+   ```bash
+   php artisan serve
+   ```
+7. Akses sistem di `http://localhost:8000`.
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Kredensial Login Default:**
+- **Email:** `admin@fif.com`
+- **Password:** `password`
