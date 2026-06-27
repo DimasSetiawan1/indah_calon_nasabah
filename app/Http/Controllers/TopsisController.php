@@ -11,35 +11,39 @@ class TopsisController extends Controller
 {
     public function index()
     {
-        $customers = Customer::orderBy('topsis_rank', 'asc')->get();
-        return view('topsis.index', compact('customers'));
-    }
-
-    public function calculate()
-    {
         $criterias = Criteria::all();
         $customers = Customer::all();
         
+        $isReady = true;
+        
         // 1. Cek Kelengkapan Data
         if ($criterias->isEmpty() || $customers->isEmpty()) {
-            return redirect()->back()->with('error', 'Data kriteria atau nasabah masih kosong.');
+            $isReady = false;
         }
 
         // Cek bobot BWM
         foreach ($criterias as $c) {
             if (is_null($c->weight)) {
-                return redirect()->back()->with('error', 'Bobot BWM belum dihitung untuk semua kriteria.');
+                $isReady = false;
+                break;
             }
         }
 
-        // 2. Membentuk Matriks Keputusan X (baris: customer, kolom: criteria)
+        if (!$isReady) {
+            return view('topsis.index', [
+                'isReady' => false,
+                'errorMsg' => 'Data kriteria/nasabah kosong atau bobot BWM belum dihitung.'
+            ]);
+        }
+
+        // 2. Membentuk Matriks Keputusan X
         $X = [];
         foreach ($customers as $customer) {
             foreach ($criterias as $criteria) {
                 $val = Assessment::where('customer_id', $customer->id)
                                  ->where('criteria_id', $criteria->id)
                                  ->value('value') ?? 0;
-                $X[$customer->id][$criteria->id] = $val;
+                $X[$customer->id][$criteria->id] = (float)$val;
             }
         }
 
@@ -105,19 +109,30 @@ class TopsisController extends Controller
             $dm = $D_min[$customer->id];
             $cci = ($dp + $dm) == 0 ? 0 : $dm / ($dp + $dm);
             $CC[$customer->id] = $cci;
-            
-            // Simpan skor sementara
-            Customer::where('id', $customer->id)->update(['topsis_score' => $cci]);
         }
 
-        // 8. Perankingan
-        arsort($CC); // Urutkan dari nilai terbesar
+        // 8. Perankingan (hanya untuk array view)
+        arsort($CC); 
         $rank = 1;
+        $rankedCustomers = [];
         foreach ($CC as $custId => $score) {
-            Customer::where('id', $custId)->update(['topsis_rank' => $rank]);
+            // Update db for persistence (optional but good for tracking)
+            Customer::where('id', $custId)->update([
+                'topsis_score' => $score,
+                'topsis_rank' => $rank
+            ]);
+            
+            $cust = $customers->firstWhere('id', $custId);
+            $cust->calculated_score = $score;
+            $cust->calculated_rank = $rank;
+            $rankedCustomers[] = $cust;
+            
             $rank++;
         }
 
-        return redirect()->route('topsis.index')->with('success', 'Perhitungan TOPSIS dan perankingan berhasil dilakukan.');
+        return view('topsis.index', compact(
+            'isReady', 'criterias', 'customers', 'rankedCustomers',
+            'X', 'R', 'V', 'A_plus', 'A_min', 'D_plus', 'D_min', 'CC'
+        ));
     }
 }
