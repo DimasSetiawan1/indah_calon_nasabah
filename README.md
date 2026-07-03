@@ -76,3 +76,57 @@ Tujuan dari fase ini adalah untuk mencari nasabah mana yang paling dekat dengan 
 **Kredensial Login Default:**
 - **Email:** `admin@fif.com`
 - **Password:** `password`
+
+---
+
+## Struktur Database & Relasi (Class Diagram)
+
+Sistem ini memiliki 4 entitas utama dalam basis data. Berikut adalah detail struktur tabel dan relasinya yang dapat digunakan sebagai acuan untuk membuat *Class Diagram* atau *Entity Relationship Diagram* (ERD):
+
+### 1. Tabel `users`
+Tabel ini digunakan untuk autentikasi dan manajemen akses admin.
+* `id` (PK, BigInt)
+* `name` (String)
+* `email` (String, Unique)
+* `email_verified_at` (Timestamp, Nullable)
+* `password` (String)
+* `remember_token` (String, Nullable)
+* `timestamps` (created_at, updated_at)
+* **Relasi:** Tidak memiliki relasi langsung ke tabel transaksi/master lainnya.
+
+### 2. Tabel `criterias`
+Menyimpan data kriteria penilaian beserta bobot (hasil perhitungan BWM).
+* `id` (PK, BigInt)
+* `code` (String, Unique) - *Contoh: C1, C2*
+* `name` (String) - *Contoh: Penghasilan, Usia*
+* `type` (Enum: 'benefit', 'cost')
+* `weight` (Double, Nullable) - *Nilai bobot prioritas kriteria dari BWM*
+* `timestamps` (created_at, updated_at)
+* **Relasi:** *One-to-Many* (`hasMany`) ke tabel `assessments`. (Satu kriteria bisa memiliki banyak nilai asesmen).
+
+### 3. Tabel `customers`
+Menyimpan biodata calon nasabah beserta hasil akhir dari perhitungan TOPSIS.
+* `id` (PK, BigInt)
+* `nik` (String, Unique)
+* `name` (String)
+* `address` (String)
+* `phone` (String, Nullable)
+* `topsis_score` (Double, Nullable) - *Nilai akhir (Preferensi CCi)*
+* `topsis_rank` (Integer, Nullable) - *Hasil peringkat nasabah*
+* `timestamps` (created_at, updated_at)
+* **Relasi:** *One-to-Many* (`hasMany`) ke tabel `assessments`. (Satu nasabah memiliki banyak nilai asesmen sesuai jumlah kriteria).
+
+### 4. Tabel `assessments`
+Tabel transaksi (atau *pivot*) yang menyimpan penilaian (skor) aktual setiap nasabah pada setiap kriteria.
+* `id` (PK, BigInt)
+* `customer_id` (FK, BigInt) -> *Merujuk ke tabel `customers`*
+* `criteria_id` (FK, BigInt) -> *Merujuk ke tabel `criterias`*
+* `value` (Double) - *Nilai asesmen nasabah pada kriteria tersebut*
+* `timestamps` (created_at, updated_at)
+* **Relasi:**
+  * *Many-to-One* (`belongsTo`) ke tabel `customers`.
+  * *Many-to-One* (`belongsTo`) ke tabel `criterias`.
+
+### Ringkasan Relasi Utama
+Pusat relasi berada pada tabel `assessments` yang menjembatani antara nasabah dan kriteria:
+**Customer** `(1) ------- (M)` **Assessment** `(M) ------- (1)` **Criteria**
