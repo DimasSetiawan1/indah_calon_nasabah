@@ -28,7 +28,7 @@
                 <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone', $customer->phone) }}">
                 @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="submit" class="btn btn-primary">Perbarui</button>
             <a href="{{ route('customers.index') }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>

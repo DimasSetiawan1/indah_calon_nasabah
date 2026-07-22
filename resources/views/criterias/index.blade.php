@@ -46,7 +46,7 @@
                             @endif
                         </td>
                         <td class="text-center pe-4">
-                            <a href="{{ route('criterias.edit', $criteria->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                            <a href="{{ route('criterias.edit', $criteria->id) }}" class="btn btn-sm btn-outline-warning" title="Ubah">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <form action="{{ route('criterias.destroy', $criteria->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin menghapus kriteria ini? Data penilaian terkait juga akan terhapus.')">

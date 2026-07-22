@@ -9,10 +9,11 @@ class Customer extends Model
 {
     use HasFactory;
 
+    protected $table = 'nasabah';
     protected $fillable = ['nik', 'name', 'address', 'phone', 'topsis_score', 'topsis_rank'];
 
     public function assessments()
     {
-        return $this->hasMany(Assessment::class);
+        return $this->hasMany(Assessment::class, 'nasabah_id');
     }
 }

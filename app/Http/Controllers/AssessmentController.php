@@ -20,8 +20,8 @@ class AssessmentController extends Controller
         $customer = Customer::findOrFail($id);
         $criterias = Criteria::all();
         
-        // Retrieve existing assessments
-        $assessments = Assessment::where('customer_id', $id)->pluck('value', 'criteria_id')->toArray();
+        // Retrieve existing assessments (using new FK: nasabah_id & kriteria_id)
+        $assessments = Assessment::where('nasabah_id', $id)->pluck('value', 'kriteria_id')->toArray();
 
         return view('assessments.form', compact('customer', 'criterias', 'assessments'));
     }
@@ -29,22 +29,22 @@ class AssessmentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'customer_id' => 'required|exists:customers,id',
+            'customer_id' => 'required|exists:nasabah,id',
             'values' => 'required|array',
         ]);
 
-        $customerId = $request->customer_id;
+        $nasabahId = $request->customer_id;
         
-        // Delete old assessments for this customer
-        Assessment::where('customer_id', $customerId)->delete();
+        // Hapus penilaian lama untuk nasabah ini
+        Assessment::where('nasabah_id', $nasabahId)->delete();
 
-        // Insert new ones
-        foreach ($request->values as $criteriaId => $value) {
+        // Simpan penilaian baru
+        foreach ($request->values as $kriteriaId => $value) {
             if ($value !== null) {
                 Assessment::create([
-                    'customer_id' => $customerId,
-                    'criteria_id' => $criteriaId,
-                    'value' => $value
+                    'nasabah_id'  => $nasabahId,
+                    'kriteria_id' => $kriteriaId,
+                    'value'       => $value
                 ]);
             }
         }

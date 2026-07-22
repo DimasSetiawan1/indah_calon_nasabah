@@ -20,12 +20,24 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
+        $messages = [
+            'nik.required' => 'NIK wajib diisi.',
+            'nik.numeric' => 'NIK harus berupa angka.',
+            'nik.digits' => 'NIK wajib 16 digit.',
+            'nik.unique' => 'NIK ini sudah terdaftar.',
+            'name.required' => 'Nama wajib diisi.',
+            'name.regex' => 'Nama tidak boleh mengandung angka atau karakter spesial.',
+            'address.required' => 'Alamat wajib diisi.',
+            'phone.required' => 'Nomor HP wajib diisi.',
+            'phone.numeric' => 'Nomor HP harus berupa angka.',
+        ];
+
         $request->validate([
-            'nik' => 'required|unique:customers',
-            'name' => 'required',
+            'nik' => 'required|numeric|digits:16|unique:nasabah',
+            'name' => 'required|regex:/^[a-zA-Z\s]+$/',
             'address' => 'required',
-            'phone' => 'nullable',
-        ]);
+            'phone' => 'required|numeric',
+        ], $messages);
 
         Customer::create($request->all());
         return redirect()->route('customers.index')->with('success', 'Data nasabah berhasil ditambahkan.');
@@ -38,12 +50,24 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
+        $messages = [
+            'nik.required' => 'NIK wajib diisi.',
+            'nik.numeric' => 'NIK harus berupa angka.',
+            'nik.digits' => 'NIK wajib 16 digit.',
+            'nik.unique' => 'NIK ini sudah terdaftar.',
+            'name.required' => 'Nama wajib diisi.',
+            'name.regex' => 'Nama tidak boleh mengandung angka atau karakter spesial.',
+            'address.required' => 'Alamat wajib diisi.',
+            'phone.required' => 'Nomor HP wajib diisi.',
+            'phone.numeric' => 'Nomor HP harus berupa angka.',
+        ];
+
         $request->validate([
-            'nik' => 'required|unique:customers,nik,' . $customer->id,
-            'name' => 'required',
+            'nik' => 'required|numeric|digits:16|unique:nasabah,nik,' . $customer->id,
+            'name' => 'required|regex:/^[a-zA-Z\s]+$/',
             'address' => 'required',
-            'phone' => 'nullable',
-        ]);
+            'phone' => 'required|numeric',
+        ], $messages);
 
         $customer->update($request->all());
         return redirect()->route('customers.index')->with('success', 'Data nasabah berhasil diubah.');

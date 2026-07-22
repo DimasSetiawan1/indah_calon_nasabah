@@ -11,11 +11,26 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 0. User Admin
+        // 0. Users
         \App\Models\User::factory()->create([
             'name' => 'Admin FIF',
             'email' => 'admin@fif.com',
-            'password' => bcrypt('password')
+            'password' => bcrypt('password'),
+            'role' => 'admin'
+        ]);
+
+        \App\Models\User::factory()->create([
+            'name' => 'MCE FIF',
+            'email' => 'mce@fif.com',
+            'password' => bcrypt('password'),
+            'role' => 'mce'
+        ]);
+
+        \App\Models\User::factory()->create([
+            'name' => 'CAP FIF',
+            'email' => 'cap@fif.com',
+            'password' => bcrypt('password'),
+            'role' => 'cap'
         ]);
 
         // 1. Data Kriteria
@@ -69,9 +84,9 @@ class DatabaseSeeder extends Seeder
             $scores = $assessmentsData[$index];
             foreach ($scores as $code => $val) {
                 Assessment::create([
-                    'customer_id' => $customer->id,
-                    'criteria_id' => $criteriaModels[$code]->id,
-                    'value' => $val,
+                    'nasabah_id'  => $customer->id,
+                    'kriteria_id' => $criteriaModels[$code]->id,
+                    'value'       => $val,
                 ]);
             }
         }

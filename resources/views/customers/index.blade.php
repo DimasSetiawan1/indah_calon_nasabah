@@ -32,7 +32,7 @@
                         <td class="text-muted small">{{ \Illuminate\Support\Str::limit($customer->address, 40) }}</td>
                         <td>{{ $customer->phone ?? '-' }}</td>
                         <td class="text-center pe-4">
-                            <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                            <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-sm btn-outline-warning" title="Ubah">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus data nasabah ini?')">

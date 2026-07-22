@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('assessments', function (Blueprint $table) {
+        Schema::create('penilaian', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->foreignId('criteria_id')->constrained('criterias')->onDelete('cascade');
+            $table->foreignId('nasabah_id')->constrained('nasabah')->onDelete('cascade');
+            $table->foreignId('kriteria_id')->constrained('kriteria')->onDelete('cascade');
             $table->double('value');
             $table->timestamps();
         });
@@ -19,6 +19,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('assessments');
+        Schema::dropIfExists('penilaian');
     }
 };

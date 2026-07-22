@@ -9,11 +9,11 @@ class Criteria extends Model
 {
     use HasFactory;
 
-    protected $table = 'criterias';
+    protected $table = 'kriteria';
     protected $fillable = ['code', 'name', 'type', 'weight'];
 
     public function assessments()
     {
-        return $this->hasMany(Assessment::class);
+        return $this->hasMany(Assessment::class, 'kriteria_id');
     }
 }

@@ -34,7 +34,7 @@
                         </td>
                         <td class="text-center pe-4">
                             <a href="{{ route('assessments.show', $customer->id) }}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">
-                                <i class="bi bi-pencil-square me-1"></i> Input / Edit
+                                <i class="bi bi-pencil-square me-1"></i> Input / Ubah
                             </a>
                         </td>
                     </tr>

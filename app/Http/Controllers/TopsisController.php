@@ -40,8 +40,8 @@ class TopsisController extends Controller
         $X = [];
         foreach ($customers as $customer) {
             foreach ($criterias as $criteria) {
-                $val = Assessment::where('customer_id', $customer->id)
-                                 ->where('criteria_id', $criteria->id)
+                $val = Assessment::where('nasabah_id', $customer->id)
+                                 ->where('kriteria_id', $criteria->id)
                                  ->value('value') ?? 0;
                 $X[$customer->id][$criteria->id] = (float)$val;
             }

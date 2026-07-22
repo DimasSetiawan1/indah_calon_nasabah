@@ -48,7 +48,7 @@
                                 <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-weight: bold; font-size: 1.2rem;">1</div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1">Master Data</h6>
+                                <h6 class="fw-bold mb-1">Data Induk</h6>
                                 <p class="text-muted mb-0 small">Kelola Data Kriteria untuk parameter penilaian dan tambahkan Data Nasabah yang akan dinilai kelayakannya.</p>
                             </div>
                         </div>
