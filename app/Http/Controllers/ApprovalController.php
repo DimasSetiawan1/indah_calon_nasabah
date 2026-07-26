@@ -10,9 +10,19 @@ class ApprovalController extends Controller
 {
     public function index()
     {
-        $customers = Customer::with('suratKontrak')
-            ->orderBy('topsis_rank', 'asc')
-            ->get();
+        $query = Customer::with('suratKontrak')
+            ->whereNotNull('topsis_score')
+            ->whereNotNull('topsis_rank');
+
+        // Untuk MCE dan CAP, hanya tampilkan nasabah yang LAYAK (rank <= 3 atau score >= 0.5)
+        if (in_array(auth()->user()->role, ['mce', 'cap'])) {
+            $query->where(function ($q) {
+                $q->where('topsis_rank', '<=', 3)
+                  ->orWhere('topsis_score', '>=', 0.5);
+            });
+        }
+
+        $customers = $query->orderBy('topsis_rank', 'asc')->get();
 
         return view('approvals.index', compact('customers'));
     }

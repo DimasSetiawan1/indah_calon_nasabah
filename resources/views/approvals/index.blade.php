@@ -149,12 +149,12 @@
                                                     </button>
                                                 </form>
                                             @elseif($customer->status_persetujuan === 'disetujui')
-                                                {{-- <a href="{{ route('approvals.contract', $customer->id) }}"
+                                                <a href="{{ route('approvals.contract', $customer->id) }}"
                                                     class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" target="_blank">
                                                     <i class="bi bi-file-earmark-text-fill me-1"></i> Lihat Kontrak
-                                                </a> --}}
-                                                <span class="badge bg-success px-3 py-2 rounded-pill"><i
-                                                        class="bi bi-lock-fill me-1"></i> Disetujui</span>
+                                                </a>
+                                                {{-- <span class="badge bg-success px-3 py-2 rounded-pill"><i
+                                                        class="bi bi-lock-fill me-1"></i> Disetujui</span> --}}
                                             @elseif($customer->status_persetujuan === 'ditolak')
                                                 <span
                                                     class="badge bg-secondary bg-opacity-10 text-secondary border px-3 py-2 rounded-pill"><i

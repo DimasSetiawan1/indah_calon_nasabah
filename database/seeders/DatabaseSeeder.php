@@ -14,21 +14,21 @@ class DatabaseSeeder extends Seeder
         // 0. Users
         \App\Models\User::factory()->create([
             'name' => 'Admin FIF',
-            'email' => 'admin@fif.com',
+            'username' => 'admin',
             'password' => bcrypt('password'),
             'role' => 'admin'
         ]);
 
         \App\Models\User::factory()->create([
             'name' => 'MCE FIF',
-            'email' => 'mce@fif.com',
+            'username' => 'mce',
             'password' => bcrypt('password'),
             'role' => 'mce'
         ]);
 
         \App\Models\User::factory()->create([
             'name' => 'CAP FIF',
-            'email' => 'cap@fif.com',
+            'username' => 'cap',
             'password' => bcrypt('password'),
             'role' => 'cap'
         ]);

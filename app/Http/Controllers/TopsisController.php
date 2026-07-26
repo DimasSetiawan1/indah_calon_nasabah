@@ -125,7 +125,15 @@ class TopsisController extends Controller
             $cust = $customers->firstWhere('id', $custId);
             $cust->calculated_score = $score;
             $cust->calculated_rank = $rank;
-            $rankedCustomers[] = $cust;
+
+            // Untuk MCE dan CAP, hanya tampilkan yang LAYAK (rank <= 3 atau score >= 0.5)
+            if (in_array(auth()->user()->role, ['mce', 'cap'])) {
+                if ($rank <= 3 || $score >= 0.5) {
+                    $rankedCustomers[] = $cust;
+                }
+            } else {
+                $rankedCustomers[] = $cust;
+            }
             
             $rank++;
         }

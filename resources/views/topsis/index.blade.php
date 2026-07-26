@@ -22,6 +22,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-medium active text-primary" id="result-tab" data-bs-toggle="tab" data-bs-target="#result" type="button" role="tab"><i class="bi bi-trophy-fill me-1"></i> Hasil Akhir</button>
                     </li>
+                    @if(Auth::user()->role === 'admin')
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-medium text-secondary" id="matrix-x-tab" data-bs-toggle="tab" data-bs-target="#matrix-x" type="button" role="tab">Matriks X</button>
                     </li>
@@ -37,6 +38,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-medium text-secondary" id="distance-tab" data-bs-toggle="tab" data-bs-target="#distance" type="button" role="tab">Jarak D+ / D-</button>
                     </li>
+                    @endif
                 </ul>
             </div>
             
@@ -108,6 +110,7 @@
                         </div>
                     </div>
 
+                    @if(Auth::user()->role === 'admin')
                     <!-- TAB 2: MATRIKS X -->
                     <div class="tab-pane fade p-4" id="matrix-x" role="tabpanel">
                         <h5 class="fw-bold mb-1">Matriks Keputusan (X)</h5>
@@ -257,6 +260,7 @@
                             </table>
                         </div>
                     </div>
+                    @endif
 
                 </div>
             </div>
