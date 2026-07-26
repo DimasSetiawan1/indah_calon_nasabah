@@ -51,4 +51,28 @@ class AssessmentController extends Controller
 
         return redirect()->route('assessments.index')->with('success', 'Data penilaian berhasil disimpan.');
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        if (auth()->user()->role !== 'cap') {
+            return redirect()->back()->with('error', 'Hanya CAP yang memiliki hak untuk mengubah status persetujuan.');
+        }
+
+        $request->validate([
+            'status_persetujuan' => 'required|in:tertunda,disetujui,ditolak',
+        ]);
+
+        $customer = Customer::findOrFail($id);
+        $customer->update([
+            'status_persetujuan' => $request->status_persetujuan
+        ]);
+
+        $labels = [
+            'tertunda' => 'Tertunda (Menunggu)',
+            'disetujui' => 'Disetujui',
+            'ditolak' => 'Ditolak'
+        ];
+
+        return redirect()->back()->with('success', 'Status persetujuan untuk nasabah ' . $customer->name . ' berhasil diubah menjadi: ' . $labels[$request->status_persetujuan]);
+    }
 }

@@ -22,7 +22,7 @@ class BwmController extends Controller
 
         $best_id = $request->best_criteria;
         $worst_id = $request->worst_criteria;
-        
+
         $bo = $request->bo; // Array of Best-to-Others
         $ow = $request->ow; // Array of Others-to-Worst
 
@@ -30,7 +30,7 @@ class BwmController extends Controller
         if (!$best_id || !$worst_id) {
             return redirect()->back()->with('error', 'Kriteria Best dan Worst harus dipilih.');
         }
-        
+
         // BO untuk best harus 1, OW untuk worst harus 1
         $bo[$best_id] = 1;
         $ow[$worst_id] = 1;
@@ -39,7 +39,7 @@ class BwmController extends Controller
         // 1. Hitung bobot berdasarkan BO (Best-to-Others) -> w_j = (1/BO_j) / sum(1/BO_k)
         // 2. Hitung bobot berdasarkan OW (Others-to-Worst) -> w_j = OW_j / sum(OW_k)
         // 3. Rata-rata dari keduanya.
-        
+
         $sum_inv_bo = 0;
         $sum_ow = 0;
 
@@ -52,7 +52,7 @@ class BwmController extends Controller
         foreach ($criterias as $c) {
             $w_bo = (1 / max(1, $bo[$c->id])) / $sum_inv_bo;
             $w_ow = max(1, $ow[$c->id]) / $sum_ow;
-            
+
             // Average weight
             $w_avg = ($w_bo + $w_ow) / 2;
             $weights[$c->id] = $w_avg;
@@ -62,7 +62,7 @@ class BwmController extends Controller
         $total_weight = array_sum($weights);
         foreach ($criterias as $c) {
             $final_weight = $weights[$c->id] / $total_weight;
-            
+
             // Simpan ke database
             $c->update(['weight' => $final_weight]);
         }
@@ -80,6 +80,6 @@ class BwmController extends Controller
         }
         $consistency_ratio = max($xi_bo, $xi_ow);
 
-        return redirect()->route('bwm.index')->with('success', 'Perhitungan BWM selesai. Konsistensi (Xi) = ' . round($consistency_ratio, 4));
+        return redirect()->route('bwm.index')->with('success', 'Perhitungan BWM selesai.');
     }
 }

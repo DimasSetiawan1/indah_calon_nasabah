@@ -59,8 +59,9 @@
                                         <th class="text-center" width="10%">Peringkat</th>
                                         <th width="15%">NIK</th>
                                         <th>Nama Nasabah</th>
-                                        <th class="text-center" width="20%">Nilai Preferensi (CCi)</th>
+                                        <th class="text-center" width="18%">Nilai Preferensi (CCi)</th>
                                         <th class="text-center" width="15%">Status Kelayakan</th>
+                                        <th class="text-center" width="15%">Status Persetujuan (CAP)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -89,6 +90,15 @@
                                                 <span class="badge bg-primary w-100 py-2">Layak</span>
                                             @else
                                                 <span class="badge bg-danger w-100 py-2">Tidak Layak</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($customer->status_persetujuan === 'disetujui')
+                                                <span class="badge bg-success w-100 py-2"><i class="bi bi-check-circle-fill me-1"></i> Disetujui</span>
+                                            @elseif($customer->status_persetujuan === 'ditolak')
+                                                <span class="badge bg-danger w-100 py-2"><i class="bi bi-x-circle-fill me-1"></i> Ditolak</span>
+                                            @else
+                                                <span class="badge bg-warning text-dark w-100 py-2"><i class="bi bi-clock-history me-1"></i> Tertunda</span>
                                             @endif
                                         </td>
                                     </tr>

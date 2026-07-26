@@ -10,10 +10,15 @@ class Customer extends Model
     use HasFactory;
 
     protected $table = 'nasabah';
-    protected $fillable = ['nik', 'name', 'address', 'phone', 'topsis_score', 'topsis_rank'];
+    protected $fillable = ['nik', 'name', 'address', 'phone', 'topsis_score', 'topsis_rank', 'status_persetujuan'];
 
     public function assessments()
     {
         return $this->hasMany(Assessment::class, 'nasabah_id');
+    }
+
+    public function suratKontrak()
+    {
+        return $this->hasOne(SuratKontrak::class, 'nasabah_id');
     }
 }

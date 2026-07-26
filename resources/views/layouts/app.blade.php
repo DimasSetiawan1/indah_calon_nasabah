@@ -271,7 +271,7 @@
                     @endif
                 @endif
 
-                @if(in_array(Auth::user()->role, ['admin', 'cap']))
+                @if(in_array(Auth::user()->role, ['admin', 'cap', 'mce']))
                     <div class="px-4 mt-4 mb-2 text-uppercase text-muted"
                         style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Perhitungan</div>
 
@@ -288,6 +288,18 @@
                         <a href="{{ route('topsis.index') }}"
                             class="nav-link {{ request()->routeIs('topsis.*') ? 'active' : '' }}">
                             <i class="bi bi-bar-chart-line-fill"></i> Hasil TOPSIS
+                        </a>
+                    </div>
+                @endif
+
+                @if(in_array(Auth::user()->role, ['admin', 'cap']))
+                    <div class="px-4 mt-4 mb-2 text-uppercase text-muted"
+                        style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Persetujuan</div>
+
+                    <div class="nav-item">
+                        <a href="{{ route('approvals.index') }}"
+                            class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-check-fill"></i> Persetujuan & Kontrak
                         </a>
                     </div>
                 @endif
