@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Criteria;
+use App\Models\Subcriteria;
 use App\Models\Customer;
 use App\Models\Assessment;
 use Illuminate\Database\Seeder;
@@ -35,11 +36,11 @@ class DatabaseSeeder extends Seeder
 
         // 1. Data Kriteria
         $criterias = [
-            ['code' => 'C1', 'name' => 'Penghasilan Per Bulan (Juta Rp)', 'type' => 'benefit'],
-            ['code' => 'C2', 'name' => 'Status Tempat Tinggal (1=Sewa, 2=Keluarga, 3=Milik Sendiri)', 'type' => 'benefit'],
-            ['code' => 'C3', 'name' => 'Jumlah Tanggungan (Orang)', 'type' => 'cost'],
-            ['code' => 'C4', 'name' => 'Riwayat Kredit / SLIK (1=Macet, 2=Kurang, 3=Lancar)', 'type' => 'benefit'],
-            ['code' => 'C5', 'name' => 'Uang Muka / DP (Juta Rp)', 'type' => 'benefit'],
+            ['code' => 'C1', 'name' => 'Penghasilan', 'type' => 'benefit'],
+            ['code' => 'C2', 'name' => 'Pekerjaan', 'type' => 'benefit'],
+            ['code' => 'C3', 'name' => 'Riwayat Kredit', 'type' => 'benefit'],
+            ['code' => 'C4', 'name' => 'Jaminan Kendaraan', 'type' => 'benefit'],
+            ['code' => 'C5', 'name' => 'Lama Tempat Tinggal', 'type' => 'benefit'],
         ];
 
         $criteriaModels = [];
@@ -47,7 +48,57 @@ class DatabaseSeeder extends Seeder
             $criteriaModels[$c['code']] = Criteria::create($c);
         }
 
-        // 2. Data Calon Nasabah
+        // 2. Data Subkriteria
+        $subcriteriasData = [
+            'C1' => [
+                ['name' => '> Rp 7.000.000 (Sangat Tinggi)', 'score' => 5],
+                ['name' => 'Rp 6.000.000 - Rp 6.999.999 (Tinggi)', 'score' => 4],
+                ['name' => 'Rp 5.000.000 - Rp 5.999.999 (Sedang / Setara UMR)', 'score' => 3],
+                ['name' => 'Rp 4.000.000 - Rp 4.499.999 (Rendah)', 'score' => 2],
+                ['name' => '< Rp 2.500.000 (Sangat Rendah)', 'score' => 1],
+            ],
+            'C2' => [
+                ['name' => 'PNS / TNI / POLRI / Pegawai BUMN', 'score' => 5],
+                ['name' => 'Pegawai Swasta Tetap / Profesional', 'score' => 4],
+                ['name' => 'Wiraswasta (Usaha > 2 tahun)', 'score' => 3],
+                ['name' => 'Pegawai Kontrak / Honorer', 'score' => 2],
+                ['name' => 'Buruh Harian / Pekerja Lepas / Pensiunan', 'score' => 1],
+            ],
+            'C3' => [
+                ['name' => 'Sangat Baik (Kol 1 - Lancar, tidak pernah menunggak)', 'score' => 5],
+                ['name' => 'Baik (Belum pernah ada riwayat kredit / Pemula)', 'score' => 4],
+                ['name' => 'Cukup (Kol 2 - Dalam Perhatian Khusus)', 'score' => 3],
+                ['name' => 'Buruk (Kol 3 & 4 - Kurang Lancar & Diragukan)', 'score' => 2],
+                ['name' => 'Sangat Buruk (Kol 5 - Macet / Blacklist)', 'score' => 1],
+            ],
+            'C4' => [
+                ['name' => 'Sangat Baru (0 - 1 tahun)', 'score' => 5],
+                ['name' => 'Baru (2 - 3 tahun)', 'score' => 4],
+                ['name' => 'Menengah (4 - 5 tahun)', 'score' => 3],
+                ['name' => 'Tua (6 - 8 tahun)', 'score' => 2],
+                ['name' => 'Sangat Tua (> 8 tahun)', 'score' => 1],
+            ],
+            'C5' => [
+                ['name' => 'Rumah Sendiri (Lunas / Bersertifikat)', 'score' => 5],
+                ['name' => 'Rumah Sendiri (Masih proses KPR/Cicilan)', 'score' => 4],
+                ['name' => 'Rumah Keluarga / Orang Tua', 'score' => 3],
+                ['name' => 'Sewa / Kontrak Tahunan (> 1 tahun)', 'score' => 2],
+                ['name' => 'Kos / Kontrak Bulanan (< 1 tahun)', 'score' => 1],
+            ],
+        ];
+
+        foreach ($subcriteriasData as $code => $subs) {
+            $crit = $criteriaModels[$code];
+            foreach ($subs as $sub) {
+                Subcriteria::create([
+                    'kriteria_id' => $crit->id,
+                    'name' => $sub['name'],
+                    'score' => $sub['score'],
+                ]);
+            }
+        }
+
+        // 3. Data Calon Nasabah Dummy (dengan Penilaian Awal)
         $customers = [
             ['nik' => '3201010000000001', 'name' => 'Budi Santoso', 'address' => 'Jl. Merdeka No. 10, Jakarta', 'phone' => '081234567890'],
             ['nik' => '3201010000000002', 'name' => 'Siti Aminah', 'address' => 'Jl. Sudirman No. 45, Bandung', 'phone' => '082345678901'],
@@ -61,32 +112,21 @@ class DatabaseSeeder extends Seeder
             $customerModels[] = Customer::create($c);
         }
 
-        // 3. Data Penilaian (Assessments)
-        // Penilaian disesuaikan dengan range kriteria di atas agar mendekati real
         $assessmentsData = [
-            // Budi Santoso: Penghasilan 5jt, Milik Sendiri, 2 Tanggungan, Lancar, DP 3jt
-            0 => ['C1' => 5.0, 'C2' => 3, 'C3' => 2, 'C4' => 3, 'C5' => 3.0], 
-            
-            // Siti Aminah: Penghasilan 3.5jt, Keluarga, 1 Tanggungan, Lancar, DP 1.5jt
-            1 => ['C1' => 3.5, 'C2' => 2, 'C3' => 1, 'C4' => 3, 'C5' => 1.5],
-            
-            // Andi Wijaya: Penghasilan 8jt, Sewa, 4 Tanggungan, Kurang, DP 4jt
-            2 => ['C1' => 8.0, 'C2' => 1, 'C3' => 4, 'C4' => 2, 'C5' => 4.0],
-            
-            // Dewi Lestari: Penghasilan 12jt, Milik Sendiri, 0 Tanggungan, Lancar, DP 5jt (Nasabah Terbaik)
-            3 => ['C1' => 12.0, 'C2' => 3, 'C3' => 0, 'C4' => 3, 'C5' => 5.0],
-            
-            // Rahmat Hidayat: Penghasilan 2.5jt, Sewa, 3 Tanggungan, Macet, DP 1jt (Nasabah Terburuk)
-            4 => ['C1' => 2.5, 'C2' => 1, 'C3' => 3, 'C4' => 1, 'C5' => 1.0],
+            0 => ['C1' => 4, 'C2' => 4, 'C3' => 5, 'C4' => 4, 'C5' => 5], // Budi Santoso
+            1 => ['C1' => 3, 'C2' => 3, 'C3' => 4, 'C4' => 3, 'C5' => 3], // Siti Aminah
+            2 => ['C1' => 5, 'C2' => 3, 'C3' => 3, 'C4' => 2, 'C5' => 2], // Andi Wijaya
+            3 => ['C1' => 5, 'C2' => 5, 'C3' => 5, 'C4' => 5, 'C5' => 5], // Dewi Lestari
+            4 => ['C1' => 1, 'C2' => 1, 'C3' => 1, 'C4' => 1, 'C5' => 1], // Rahmat Hidayat
         ];
 
         foreach ($customerModels as $index => $customer) {
             $scores = $assessmentsData[$index];
             foreach ($scores as $code => $val) {
                 Assessment::create([
-                    'nasabah_id'  => $customer->id,
+                    'nasabah_id' => $customer->id,
                     'kriteria_id' => $criteriaModels[$code]->id,
-                    'value'       => $val,
+                    'value' => $val,
                 ]);
             }
         }

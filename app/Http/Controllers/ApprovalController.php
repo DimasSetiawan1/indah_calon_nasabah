@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use App\Models\SuratKontrak;
 use Illuminate\Http\Request;
 
 class ApprovalController extends Controller
 {
     public function index()
     {
-        $query = Customer::with('suratKontrak')
-            ->whereNotNull('topsis_score')
+        $query = Customer::whereNotNull('topsis_score')
             ->whereNotNull('topsis_rank');
 
         // Untuk MCE dan CAP, hanya tampilkan nasabah yang LAYAK (rank <= 3 atau score >= 0.5)
@@ -32,20 +30,7 @@ class ApprovalController extends Controller
         $customer = Customer::findOrFail($id);
         $customer->update(['status_persetujuan' => 'disetujui']);
 
-        // Generate / Update Surat Kontrak otomatis
-        $nomorKontrak = 'KTR/FIF/' . date('Y') . '/' . str_pad($customer->id, 4, '0', STR_PAD_LEFT);
-
-        SuratKontrak::updateOrCreate(
-            ['nasabah_id' => $customer->id],
-            [
-                'nomor_kontrak' => $nomorKontrak,
-                'status' => 'disetujui_cap',
-                'tanggal_kontrak' => now(),
-                'keterangan' => 'Disetujui oleh CAP. Siap diterbitkan dan dicairkan.',
-            ]
-        );
-
-        return redirect()->back()->with('success', 'Nasabah ' . $customer->name . ' berhasil DISETUJUI dan Surat Kontrak diterbitkan.');
+        return redirect()->back()->with('success', 'Pengajuan nasabah ' . $customer->name . ' berhasil DISETUJUI.');
     }
 
     public function reject($id)
@@ -53,29 +38,6 @@ class ApprovalController extends Controller
         $customer = Customer::findOrFail($id);
         $customer->update(['status_persetujuan' => 'ditolak']);
 
-        // Hapus Surat Kontrak jika ada
-        SuratKontrak::where('nasabah_id', $customer->id)->delete();
-
         return redirect()->back()->with('success', 'Pengajuan nasabah ' . $customer->name . ' telah DITOLAK.');
-    }
-
-    public function showContract($id)
-    {
-        $customer = Customer::with('suratKontrak')->findOrFail($id);
-
-        if (!$customer->suratKontrak) {
-            // Jika belum ada surat kontrak, buatkan secara otomatis
-            $nomorKontrak = 'KTR/FIF/' . date('Y') . '/' . str_pad($customer->id, 4, '0', STR_PAD_LEFT);
-            $contract = SuratKontrak::create([
-                'nasabah_id' => $customer->id,
-                'nomor_kontrak' => $nomorKontrak,
-                'status' => 'disetujui_cap',
-                'tanggal_kontrak' => now(),
-                'keterangan' => 'Disetujui oleh CAP.',
-            ]);
-            $customer->load('suratKontrak');
-        }
-
-        return view('approvals.contract', compact('customer'));
     }
 }

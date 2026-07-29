@@ -241,18 +241,9 @@
                     </a>
                 </div>
 
-                @if(in_array(Auth::user()->role, ['admin', 'mce']))
+                @if(Auth::user()->role === 'mce')
                     <div class="px-4 mt-4 mb-2 text-uppercase text-muted"
-                        style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Data Induk</div>
-
-                    @if(Auth::user()->role === 'admin')
-                        <div class="nav-item">
-                            <a href="{{ route('criterias.index') }}"
-                                class="nav-link {{ request()->routeIs('criterias.*') ? 'active' : '' }}">
-                                <i class="bi bi-list-check"></i> Kriteria
-                            </a>
-                        </div>
-                    @endif
+                        style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Data Nasabah</div>
 
                     <div class="nav-item">
                         <a href="{{ route('customers.index') }}"
@@ -260,26 +251,17 @@
                             <i class="bi bi-people-fill"></i> Calon Nasabah
                         </a>
                     </div>
-
-                    @if(Auth::user()->role === 'admin')
-                        <div class="nav-item">
-                            <a href="{{ route('assessments.index') }}"
-                                class="nav-link {{ request()->routeIs('assessments.*') ? 'active' : '' }}">
-                                <i class="bi bi-clipboard2-data-fill"></i> Penilaian
-                            </a>
-                        </div>
-                    @endif
                 @endif
 
                 @if(in_array(Auth::user()->role, ['admin', 'cap', 'mce']))
                     <div class="px-4 mt-4 mb-2 text-uppercase text-muted"
-                        style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Perhitungan</div>
+                        style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Penilaian & Perangkingan</div>
 
                     @if(Auth::user()->role === 'admin')
                         <div class="nav-item">
                             <a href="{{ route('bwm.index') }}"
                                 class="nav-link {{ request()->routeIs('bwm.*') ? 'active' : '' }}">
-                                <i class="bi bi-calculator-fill"></i> Analisis BWM
+                                <i class="bi bi-sliders"></i> Bobot Penilaian
                             </a>
                         </div>
                     @endif
@@ -287,19 +269,19 @@
                     <div class="nav-item">
                         <a href="{{ route('topsis.index') }}"
                             class="nav-link {{ request()->routeIs('topsis.*') ? 'active' : '' }}">
-                            <i class="bi bi-bar-chart-line-fill"></i> Hasil TOPSIS
+                            <i class="bi bi-trophy-fill"></i> Hasil Perangkingan
                         </a>
                     </div>
                 @endif
 
-                @if(in_array(Auth::user()->role, ['admin', 'cap']))
+                @if(in_array(Auth::user()->role, ['cap', 'mce']))
                     <div class="px-4 mt-4 mb-2 text-uppercase text-muted"
                         style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Persetujuan</div>
 
                     <div class="nav-item">
                         <a href="{{ route('approvals.index') }}"
                             class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
-                            <i class="bi bi-file-earmark-check-fill"></i> Persetujuan & Kontrak
+                            <i class="bi bi-file-earmark-check-fill"></i> Persetujuan
                         </a>
                     </div>
                 @endif

@@ -25,59 +25,45 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     // ==========================================
-    // Akses MCE & Admin
+    // Akses MCE (Kelola Calon Nasabah)
     // ==========================================
-    Route::middleware(['role:mce,admin'])->group(function () {
+    Route::middleware(['role:mce'])->group(function () {
         Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
         Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-    });
-
-    Route::middleware(['role:admin,cap'])->group(function () {
-        Route::get('/assessments', [AssessmentController::class, 'index'])->name('assessments.index');
-    });
-
-    // ==========================================
-    // Update Status Persetujuan (Khusus CAP)
-    // ==========================================
-    Route::middleware(['role:cap'])->group(function () {
-        Route::post('/assessments/{customer}/status', [AssessmentController::class, 'updateStatus'])->name('assessments.updateStatus');
-    });
-
-    // ==========================================
-    // Khusus Admin
-    // ==========================================
-    Route::middleware(['role:admin'])->group(function () {
-        // Kelola Kriteria
-        Route::resource('criterias', CriteriaController::class);
-
-        // Kelola Nasabah (Edit, Delete)
         Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
         Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
         Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+    });
 
-        // Input Nilai Penilaian & BWM
+    // ==========================================
+    // Khusus Admin (BWM & Kriteria Internal)
+    // ==========================================
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('criterias', CriteriaController::class);
+        Route::get('/assessments', [AssessmentController::class, 'index'])->name('assessments.index');
         Route::get('/assessments/{assessment}', [AssessmentController::class, 'show'])->name('assessments.show');
         Route::post('/assessments', [AssessmentController::class, 'store'])->name('assessments.store');
+        
+        // Input & Hitung BWM
         Route::get('/bwm', [BwmController::class, 'index'])->name('bwm.index');
         Route::post('/bwm/calculate', [BwmController::class, 'calculate'])->name('bwm.calculate');
     });
 
     // ==========================================
-    // Khusus Admin, CAP & MCE
+    // Akses Lihat TOPSIS & Persetujuan (MCE, CAP, Admin)
     // ==========================================
     Route::middleware(['role:admin,cap,mce'])->group(function () {
-        // TOPSIS (Admin melihat hasil, CAP menyetujui, MCE melihat hasil)
         Route::get('/topsis', [TopsisController::class, 'index'])->name('topsis.index');
-        Route::get('/approvals/{id}/contract', [ApprovalController::class, 'showContract'])->name('approvals.contract');
+        Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     });
 
     // ==========================================
-    // Persetujuan CAP & Surat Kontrak (CAP & Admin)
+    // Eksekusi Persetujuan (Khusus CAP)
     // ==========================================
-    Route::middleware(['role:admin,cap'])->group(function () {
-        Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+    Route::middleware(['role:cap'])->group(function () {
         Route::post('/approvals/{id}/approve', [ApprovalController::class, 'approve'])->name('approvals.approve');
         Route::post('/approvals/{id}/reject', [ApprovalController::class, 'reject'])->name('approvals.reject');
+        Route::post('/assessments/{customer}/status', [AssessmentController::class, 'updateStatus'])->name('assessments.updateStatus');
     });
 });

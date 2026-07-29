@@ -1,62 +1,102 @@
 @extends('layouts.app')
 
-@section('title', 'Analisis BWM (Best Worst Method)')
+@section('title', 'Pengaturan Bobot Penilaian')
 
 @section('content')
     <div class="row">
-        <!-- Left Column: Form Input -->
-        <div class="col-xl-7 col-lg-12">
-            <div class="card mb-4">
+        <div class="col-12">
+            <div class="card mb-4 border-0 shadow-sm">
                 <div class="card-header d-flex align-items-center bg-white border-bottom-0 pt-4 pb-0">
                     <div class="bg-primary bg-opacity-10 text-primary rounded d-flex align-items-center justify-content-center me-3"
                         style="width: 40px; height: 40px;">
                         <i class="bi bi-sliders fs-5"></i>
                     </div>
                     <div>
-                        <h5 class="mb-0 fw-bold">Input Preferensi Kriteria</h5>
-                        <small class="text-muted">Tentukan tingkat kepentingan antar kriteria</small>
+                        <h5 class="mb-0 fw-bold">Input Preferensi Indikator</h5>
+                        <small class="text-muted">Tentukan tingkat kepentingan antar indikator penilaian</small>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
+                    @if(session('success'))
+                        <div class="alert alert-success border-0 bg-success bg-opacity-10 py-3 px-4 mb-4 rounded-3 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success fs-5 me-3"></i> 
+                            <div>{{ session('success') }}</div>
+                        </div>
+                    @endif
+
                     <form action="{{ route('bwm.calculate') }}" method="POST">
                         @csrf
 
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Kriteria Terbaik</label>
+                                <label class="form-label fw-semibold text-dark">Indikator Utama (Terpenting)</label>
                                 <select name="best_criteria" id="best_criteria"
                                     class="form-select border-primary border-opacity-50" required>
-                                    <option value="">-- Pilih Kriteria Terbaik --</option>
+                                    <option value="">-- Pilih Indikator Utama --</option>
                                     @foreach($criterias as $c)
-                                        <option value="{{ $c->id }}">{{ $c->code }} - {{ $c->name }}</option>
+                                        <option value="{{ $c->id }}">{{ $c->name }}</option>
                                     @endforeach
                                 </select>
-                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Kriteria yang
-                                    paling penting.</div>
+                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Indikator yang paling menentukan kelayakan.</div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Kriteria Terburuk</label>
+                                <label class="form-label fw-semibold text-dark">Indikator Pendukung (Terendah)</label>
                                 <select name="worst_criteria" id="worst_criteria"
                                     class="form-select border-danger border-opacity-50" required>
-                                    <option value="">-- Pilih kriteria Terburuk --</option>
+                                    <option value="">-- Pilih Indikator Pendukung --</option>
                                     @foreach($criterias as $c)
-                                        <option value="{{ $c->id }}">{{ $c->code }} - {{ $c->name }}</option>
+                                        <option value="{{ $c->id }}">{{ $c->name }}</option>
                                     @endforeach
                                 </select>
-                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Kriteria yang
-                                    paling tidak penting.</div>
+                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Indikator dengan tingkat keutamaan terendah.</div>
                             </div>
                         </div>
 
                         <hr class="border-light my-4">
 
-                        <div class="alert alert-info border-0 bg-info bg-opacity-10 d-flex mb-4">
-                            <i class="bi bi-lightbulb-fill text-info fs-4 me-3"></i>
-                            <div class="small">
-                                <strong>Cara Mengisi Nilai (Skala 1-9):</strong><br>
-                                1 = Sama pentingnya &nbsp; | &nbsp; 3 = Sedikit lebih penting &nbsp; | &nbsp; 5 = Lebih
-                                penting &nbsp; | &nbsp; 7 = Sangat penting &nbsp; | &nbsp; 9 = Mutlak lebih penting.<br>
-                                <em>(Gunakan angka genap 2,4,6,8 sebagai nilai tengah)</em>
+                        <div class="card border-0 bg-primary bg-opacity-10 rounded-3 mb-4">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-lightbulb-fill me-2"></i> Panduan Pengisian Skala Perbandingan (1 - 9):
+                                </h6>
+                                <div class="row g-2 text-dark small">
+                                    <div class="col-md-4">
+                                        <div class="bg-white p-2 rounded border shadow-sm h-100">
+                                            <span class="badge bg-primary me-1">1</span> <strong>Sama Penting</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Keutamaan kedua indikator setara.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="bg-white p-2 rounded border shadow-sm h-100">
+                                            <span class="badge bg-primary me-1">3</span> <strong>Sedikit Lebih Penting</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Sedikit lebih diutamakan.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="bg-white p-2 rounded border shadow-sm h-100">
+                                            <span class="badge bg-primary me-1">5</span> <strong>Lebih Penting</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Jelas lebih diutamakan.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="bg-white p-2 rounded border shadow-sm h-100">
+                                            <span class="badge bg-primary me-1">7</span> <strong>Sangat Penting</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Sangat mendominasi keutamaan.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="bg-white p-2 rounded border shadow-sm h-100">
+                                            <span class="badge bg-primary me-1">9</span> <strong>Mutlak Lebih Penting</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Pengaruh mutlak & tertinggi.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="bg-white p-2 rounded border shadow-sm h-100">
+                                            <span class="badge bg-secondary me-1">2, 4, 6, 8</span> <strong>Nilai Antara</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Nilai tengah perbandingan.</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -64,16 +104,15 @@
                             <table class="table table-bordered align-middle">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th width="40%">Kriteria</th>
-                                        <th width="30%">Terbaik-ke-Lainnya</th>
-                                        <th width="30%">Lainnya-ke-Terburuk</th>
+                                        <th width="40%">Indikator Penilaian</th>
+                                        <th width="30%">Terpenting-ke-Lainnya</th>
+                                        <th width="30%">Lainnya-ke-Terendah</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($criterias as $c)
                                         <tr>
                                             <td class="fw-medium text-secondary">
-                                                <span class="badge bg-secondary me-2">{{ $c->code }}</span>
                                                 {{ $c->name }}
                                             </td>
                                             <td>
@@ -98,75 +137,10 @@
 
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-primary py-2 fw-bold">
-                                <i class="bi bi-calculator me-2"></i> Proses Perhitungan BWM
+                                <i class="bi bi-sliders me-2"></i> Hitung Bobot Penilaian
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column: Results -->
-        <div class="col-xl-5 col-lg-12">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-header bg-white border-0 pt-4 pb-2">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-pie-chart-fill text-success me-2"></i> Hasil Bobot Kriteria
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @php
-                        $isCalculated = $criterias->every(function ($c) {
-                            return $c->weight !== null;
-                        });
-                    @endphp
-
-                    @if(session('success'))
-                        <div class="alert alert-success border-0 bg-success bg-opacity-10 py-2 px-3 mb-4 small rounded-3">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i> {{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if($isCalculated)
-                        <div class="mb-4">
-                            @foreach($criterias as $c)
-                                @php
-                                    $percent = round($c->weight * 100, 1);
-                                @endphp
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="fw-medium text-dark small"><span
-                                                class="badge bg-light text-dark border me-1">{{ $c->code }}</span>
-                                            {{ $c->name }}</span>
-                                        <span class="fw-bold text-primary">{{ round($c->weight, 4) }} ({{ $percent }}%)</span>
-                                    </div>
-                                    <div class="progress" style="height: 8px;">
-                                        <div class="progress-bar bg-primary rounded-pill" role="progressbar"
-                                            style="width: {{ $percent }}%;" aria-valuenow="{{ $percent }}" aria-valuemin="0"
-                                            aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="card bg-light border-0 rounded-3 p-3">
-                            <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-info-circle-fill text-primary me-2"></i>
-                                Interpretasi Hasil:</h6>
-                            <p class="text-muted small mb-0">
-                                Bobot ini mencerminkan seberapa penting pengaruh kriteria tersebut dalam menentukan kelayakan
-                                calon nasabah. Semakin panjang bar biru, semakin besar dampaknya pada penilaian akhir (TOPSIS).
-                                Total dari seluruh bobot ini bernilai mutlak 1 (100%).
-                            </p>
-                        </div>
-                    @else
-                        <div class="text-center py-5 text-muted">
-                            <div
-                                class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center p-4 mb-3">
-                                <i class="bi bi-bar-chart text-secondary fs-1"></i>
-                            </div>
-                            <h6 class="fw-bold">Belum Ada Hasil</h6>
-                            <p class="small mb-0">Silakan input preferensi dan klik tombol proses perhitungan di samping.</p>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>

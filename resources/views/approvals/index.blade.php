@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Halaman Persetujuan CAP & Surat Kontrak')
+@section('title', 'Halaman Persetujuan CAP')
 
 @section('content')
     <div class="row mb-4">
@@ -23,10 +23,10 @@
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle bg-white text-success p-3 me-3 d-flex align-items-center justify-content-center"
                         style="width: 56px; height: 56px;">
-                        <i class="bi bi-file-earmark-text-fill fs-3"></i>
+                        <i class="bi bi-check-circle-fill fs-3"></i>
                     </div>
                     <div>
-                        <h6 class="mb-0 text-white-50 small">Disetujui & Terbit Kontrak</h6>
+                        <h6 class="mb-0 text-white-50 small">Disetujui</h6>
                         <h3 class="fw-bold mb-0">{{ $customers->where('status_persetujuan', 'disetujui')->count() }}</h3>
                     </div>
                 </div>
@@ -52,9 +52,8 @@
         <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
             <div>
                 <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-file-earmark-check-fill text-primary me-2"></i> Lembar
-                    Persetujuan CAP </h5>
-                <p class="text-muted small mb-0">Halaman khusus peninjauan dan persetujuan pengajuan kredit serta penerbitan
-                    Surat Kontrak pembiayaan.</p>
+                    Persetujuan CAP</h5>
+                <p class="text-muted small mb-0">Halaman khusus peninjauan dan persetujuan pengajuan kelayakan nasabah.</p>
             </div>
         </div>
         <div class="card-body p-0">
@@ -63,12 +62,12 @@
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4" width="8%">Peringkat</th>
-                            <th width="14%">NIK</th>
+                            <th width="15%">NIK</th>
                             <th>Nama Nasabah</th>
-                            <th width="14%" class="text-center">Skor TOPSIS (CCi)</th>
-                            <th width="14%" class="text-center">Status Kelayakan</th>
-                            <th width="14%" class="text-center">Status Persetujuan</th>
-                            <th width="22%" class="text-center pe-4">Aksi Persetujuan CAP</th>
+                            <th width="15%" class="text-center">Skor Kelayakan</th>
+                            <th width="15%" class="text-center">Status Kelayakan</th>
+                            <th width="15%" class="text-center">Status Persetujuan</th>
+                            <th width="20%" class="text-center pe-4">Aksi Persetujuan CAP</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -136,7 +135,7 @@
                                                     class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm"
-                                                        onclick="return confirm('Apakah Anda yakin ingin MENYETUJUI pengajuan {{ $customer->name }} dan menerbitkan Surat Kontrak?')">
+                                                        onclick="return confirm('Apakah Anda yakin ingin MENYETUJUI pengajuan {{ $customer->name }}?')">
                                                         <i class="bi bi-check-lg me-1"></i> Setujui
                                                     </button>
                                                 </form>
@@ -149,12 +148,8 @@
                                                     </button>
                                                 </form>
                                             @elseif($customer->status_persetujuan === 'disetujui')
-                                                <a href="{{ route('approvals.contract', $customer->id) }}"
-                                                    class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" target="_blank">
-                                                    <i class="bi bi-file-earmark-text-fill me-1"></i> Lihat Kontrak
-                                                </a>
-                                                {{-- <span class="badge bg-success px-3 py-2 rounded-pill"><i
-                                                        class="bi bi-lock-fill me-1"></i> Disetujui</span> --}}
+                                                <span class="badge bg-success bg-opacity-10 text-success border px-3 py-2 rounded-pill"><i
+                                                        class="bi bi-lock-fill me-1"></i> Disetujui</span>
                                             @elseif($customer->status_persetujuan === 'ditolak')
                                                 <span
                                                     class="badge bg-secondary bg-opacity-10 text-secondary border px-3 py-2 rounded-pill"><i
@@ -162,12 +157,14 @@
                                             @endif
                                         @else
                                             @if($customer->status_persetujuan === 'disetujui')
-                                                <a href="{{ route('approvals.contract', $customer->id) }}"
-                                                    class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" target="_blank">
-                                                    <i class="bi bi-file-earmark-text-fill me-1"></i> Lihat Kontrak
-                                                </a>
+                                                <span class="badge bg-success bg-opacity-10 text-success border px-3 py-2 rounded-pill"><i
+                                                        class="bi bi-check-circle-fill me-1"></i> Disetujui</span>
+                                            @elseif($customer->status_persetujuan === 'ditolak')
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border px-3 py-2 rounded-pill"><i
+                                                        class="bi bi-x-circle-fill me-1"></i> Ditolak</span>
                                             @else
-                                                <span class="text-muted small">-</span>
+                                                <span class="badge bg-warning bg-opacity-10 text-dark border px-3 py-2 rounded-pill"><i
+                                                        class="bi bi-clock-history me-1"></i> Tertunda</span>
                                             @endif
                                         @endif
                                     </div>

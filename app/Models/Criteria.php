@@ -16,4 +16,9 @@ class Criteria extends Model
     {
         return $this->hasMany(Assessment::class, 'kriteria_id');
     }
+
+    public function subcriterias()
+    {
+        return $this->hasMany(Subcriteria::class, 'kriteria_id')->orderBy('score', 'desc');
+    }
 }

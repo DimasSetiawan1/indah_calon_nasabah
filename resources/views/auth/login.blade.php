@@ -110,7 +110,7 @@
         </form>
 
         <div class="text-center mt-5 text-muted small">
-            &copy; {{ date('Y') }} Sistem Rekomendasi BWM-TOPSIS
+            &copy; {{ date('Y') }} Sistem Penilaian Kelayakan Nasabah FIFGROUP
         </div>
     </div>
 
