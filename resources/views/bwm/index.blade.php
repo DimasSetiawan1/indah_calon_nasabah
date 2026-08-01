@@ -18,8 +18,9 @@
                 </div>
                 <div class="card-body p-4">
                     @if(session('success'))
-                        <div class="alert alert-success border-0 bg-success bg-opacity-10 py-3 px-4 mb-4 rounded-3 d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill text-success fs-5 me-3"></i> 
+                        <div
+                            class="alert alert-success border-0 bg-success bg-opacity-10 py-3 px-4 mb-4 rounded-3 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success fs-5 me-3"></i>
                             <div>{{ session('success') }}</div>
                         </div>
                     @endif
@@ -27,17 +28,22 @@
                     <form action="{{ route('bwm.calculate') }}" method="POST">
                         @csrf
 
-                        <div class="row g-4 mb-4">
+                        {{-- <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">Indikator Utama (Terpenting)</label>
                                 <select name="best_criteria" id="best_criteria"
                                     class="form-select border-primary border-opacity-50" required>
                                     <option value="">-- Pilih Indikator Utama --</option>
                                     @foreach($criterias as $c)
-                                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                                    <option value="{{ $c->id }}" {{ (old('best_criteria')==$c->id || (old('best_criteria')
+                                        === null && \Illuminate\Support\Str::contains(strtolower($c->name), 'riwayat
+                                        kredit'))) ? 'selected' : '' }}>
+                                        {{ $c->name }}
+                                    </option>
                                     @endforeach
                                 </select>
-                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Indikator yang paling menentukan kelayakan.</div>
+                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Indikator yang
+                                    paling menentukan kelayakan.</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">Indikator Pendukung (Terendah)</label>
@@ -45,14 +51,20 @@
                                     class="form-select border-danger border-opacity-50" required>
                                     <option value="">-- Pilih Indikator Pendukung --</option>
                                     @foreach($criterias as $c)
-                                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                                    <option value="{{ $c->id }}" {{ (old('worst_criteria')==$c->id || (old('worst_criteria')
+                                        === null && \Illuminate\Support\Str::contains(strtolower($c->name), 'jaminan
+                                        kendaraan'))) ? 'selected' : '' }}>
+                                        {{ $c->name }}
+                                    </option>
                                     @endforeach
                                 </select>
-                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Indikator dengan tingkat keutamaan terendah.</div>
+                                <div class="form-text text-muted small"><i class="bi bi-info-circle"></i> Indikator dengan
+                                    tingkat keutamaan terendah.</div>
                             </div>
-                        </div>
+                        </div> --}}
 
-                        <hr class="border-light my-4">
+                        {{--
+                        <hr class="border-light my-4"> --}}
 
                         <div class="card border-0 bg-primary bg-opacity-10 rounded-3 mb-4">
                             <div class="card-body p-4">
@@ -63,37 +75,46 @@
                                     <div class="col-md-4">
                                         <div class="bg-white p-2 rounded border shadow-sm h-100">
                                             <span class="badge bg-primary me-1">1</span> <strong>Sama Penting</strong>
-                                            <div class="text-muted" style="font-size: 0.75rem;">Keutamaan kedua indikator setara.</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Keutamaan kedua indikator
+                                                setara.</div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="bg-white p-2 rounded border shadow-sm h-100">
-                                            <span class="badge bg-primary me-1">3</span> <strong>Sedikit Lebih Penting</strong>
-                                            <div class="text-muted" style="font-size: 0.75rem;">Sedikit lebih diutamakan.</div>
+                                            <span class="badge bg-primary me-1">3</span> <strong>Sedikit Lebih
+                                                Penting</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Sedikit lebih diutamakan.
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="bg-white p-2 rounded border shadow-sm h-100">
                                             <span class="badge bg-primary me-1">5</span> <strong>Lebih Penting</strong>
-                                            <div class="text-muted" style="font-size: 0.75rem;">Jelas lebih diutamakan.</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Jelas lebih diutamakan.
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="bg-white p-2 rounded border shadow-sm h-100">
                                             <span class="badge bg-primary me-1">7</span> <strong>Sangat Penting</strong>
-                                            <div class="text-muted" style="font-size: 0.75rem;">Sangat mendominasi keutamaan.</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Sangat mendominasi
+                                                keutamaan.</div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="bg-white p-2 rounded border shadow-sm h-100">
-                                            <span class="badge bg-primary me-1">9</span> <strong>Mutlak Lebih Penting</strong>
-                                            <div class="text-muted" style="font-size: 0.75rem;">Pengaruh mutlak & tertinggi.</div>
+                                            <span class="badge bg-primary me-1">9</span> <strong>Mutlak Lebih
+                                                Penting</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Pengaruh mutlak & tertinggi.
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="bg-white p-2 rounded border shadow-sm h-100">
-                                            <span class="badge bg-secondary me-1">2, 4, 6, 8</span> <strong>Nilai Antara</strong>
-                                            <div class="text-muted" style="font-size: 0.75rem;">Nilai tengah perbandingan.</div>
+                                            <span class="badge bg-secondary me-1">2, 4, 6, 8</span> <strong>Nilai
+                                                Antara</strong>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Nilai tengah perbandingan.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -104,9 +125,11 @@
                             <table class="table table-bordered align-middle">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th width="40%">Indikator Penilaian</th>
-                                        <th width="30%">Terpenting-ke-Lainnya</th>
-                                        <th width="30%">Lainnya-ke-Terendah</th>
+                                        <th width="34%">Indikator Penilaian</th>
+                                        <th width="33%" class="text-center" id="th_best_header">Riwayat Kredit ke Indikator
+                                            Lain</th>
+                                        <th width="33%" class="text-center" id="th_worst_header">Indikator Lain ke Jaminan
+                                            Kendaraan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -153,6 +176,24 @@
         document.addEventListener('DOMContentLoaded', function () {
             const bestSelect = document.getElementById('best_criteria');
             const worstSelect = document.getElementById('worst_criteria');
+            const headerBestEl = document.getElementById('th_best_header');
+            const headerWorstEl = document.getElementById('th_worst_header');
+
+            function updateHeaders() {
+                const bestText = bestSelect.options[bestSelect.selectedIndex]?.text;
+                const worstText = worstSelect.options[worstSelect.selectedIndex]?.text;
+
+                if (headerBestEl) {
+                    headerBestEl.textContent = (bestSelect.value && !bestText.includes('--'))
+                        ? (bestText + ' ke Indikator Lain')
+                        : 'Riwayat Kredit ke Indikator Lain';
+                }
+                if (headerWorstEl) {
+                    headerWorstEl.textContent = (worstSelect.value && !worstText.includes('--'))
+                        ? ('Indikator Lain ke ' + worstText)
+                        : 'Indikator Lain ke Jaminan Kendaraan';
+                }
+            }
 
             function updateInputs() {
                 const bestId = bestSelect.value;
@@ -181,10 +222,15 @@
                         owWorst.classList.add('bg-light'); // visual cue that it's locked
                     }
                 }
+
+                updateHeaders();
             }
 
             bestSelect.addEventListener('change', updateInputs);
             worstSelect.addEventListener('change', updateInputs);
+
+            // Initial call on load
+            updateInputs();
         });
     </script>
 @endpush

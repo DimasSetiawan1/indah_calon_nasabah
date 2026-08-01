@@ -61,13 +61,11 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4" width="8%">Peringkat</th>
-                            <th width="15%">NIK</th>
+                            <th class="ps-4" width="10%">Peringkat</th>
                             <th>Nama Nasabah</th>
-                            <th width="15%" class="text-center">Skor Kelayakan</th>
-                            <th width="15%" class="text-center">Status Kelayakan</th>
-                            <th width="15%" class="text-center">Status Persetujuan</th>
-                            <th width="20%" class="text-center pe-4">Aksi Persetujuan CAP</th>
+                            <th width="20%" class="text-center">Status Kelayakan</th>
+                            <th width="20%" class="text-center">Status Persetujuan</th>
+                            <th width="26%" class="text-center pe-4">Aksi / Detail</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,18 +86,10 @@
                                         <span class="fw-bold text-muted ps-2">{{ $customer->topsis_rank ?? '-' }}</span>
                                     @endif
                                 </td>
-                                <td class="text-secondary fw-medium">{{ $customer->nik }}</td>
                                 <td>
                                     <div class="fw-bold text-dark">{{ $customer->name }}</div>
                                     <div class="text-muted small"><i class="bi bi-telephone me-1"></i>
                                         {{ $customer->phone ?? '-' }}</div>
-                                </td>
-                                <td class="text-center">
-                                    @if($customer->topsis_score !== null)
-                                        <span class="fw-bold text-primary fs-6">{{ round($customer->topsis_score, 4) }}</span>
-                                    @else
-                                        <span class="text-muted small">Belum dihitung</span>
-                                    @endif
                                 </td>
                                 <td class="text-center">
                                     @if($customer->topsis_rank !== null && $customer->topsis_rank <= 3)
@@ -129,6 +119,10 @@
                                 </td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <a href="{{ route('customers.detail', $customer->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 shadow-sm" title="Detail Hasil">
+                                            <i class="bi bi-eye-fill"></i> Detail
+                                        </a>
+
                                         @if(Auth::user()->role === 'cap')
                                             @if($customer->status_persetujuan === 'tertunda')
                                                 <form action="{{ route('approvals.approve', $customer->id) }}" method="POST"
@@ -155,24 +149,13 @@
                                                     class="badge bg-secondary bg-opacity-10 text-secondary border px-3 py-2 rounded-pill"><i
                                                         class="bi bi-lock-fill me-1"></i> Ditolak</span>
                                             @endif
-                                        @else
-                                            @if($customer->status_persetujuan === 'disetujui')
-                                                <span class="badge bg-success bg-opacity-10 text-success border px-3 py-2 rounded-pill"><i
-                                                        class="bi bi-check-circle-fill me-1"></i> Disetujui</span>
-                                            @elseif($customer->status_persetujuan === 'ditolak')
-                                                <span class="badge bg-danger bg-opacity-10 text-danger border px-3 py-2 rounded-pill"><i
-                                                        class="bi bi-x-circle-fill me-1"></i> Ditolak</span>
-                                            @else
-                                                <span class="badge bg-warning bg-opacity-10 text-dark border px-3 py-2 rounded-pill"><i
-                                                        class="bi bi-clock-history me-1"></i> Tertunda</span>
-                                            @endif
                                         @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5 text-muted">
+                                <td colspan="6" class="text-center py-5 text-muted">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                     Belum ada pengajuan calon nasabah.
                                 </td>

@@ -28,12 +28,11 @@
                         <table class="table table-hover align-middle border">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="text-center" width="10%">Peringkat</th>
-                                    <th width="15%">NIK</th>
+                                    <th class="text-center" width="12%">Peringkat</th>
                                     <th>Nama Nasabah</th>
-                                    <th class="text-center" width="18%">Skor Kelayakan</th>
-                                    <th class="text-center" width="15%">Status Kelayakan</th>
-                                    <th class="text-center" width="18%">Status Persetujuan CAP</th>
+                                    <th class="text-center" width="22%">Status Kelayakan</th>
+                                    <th class="text-center" width="24%">Status Persetujuan CAP</th>
+                                    <th class="text-center" width="18%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -50,11 +49,7 @@
                                             <span class="fw-bold text-secondary fs-5">{{ $customer->calculated_rank }}</span>
                                         @endif
                                     </td>
-                                    <td class="text-secondary fw-medium">{{ $customer->nik }}</td>
                                     <td class="fw-bold text-dark">{{ $customer->name }}</td>
-                                    <td class="text-center">
-                                        <div class="fw-bold text-primary fs-5">{{ round($customer->calculated_score, 4) }}</div>
-                                    </td>
                                     <td class="text-center">
                                         @if($customer->calculated_rank <= 3)
                                             <span class="badge bg-success w-100 py-2">Sangat Layak</span>
@@ -72,6 +67,11 @@
                                         @else
                                             <span class="badge bg-warning text-dark w-100 py-2"><i class="bi bi-clock-history me-1"></i> Tertunda</span>
                                         @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ route('customers.detail', $customer->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                                            <i class="bi bi-eye-fill me-1"></i> Detail Hasil
+                                        </a>
                                     </td>
                                 </tr>
                                 @endforeach

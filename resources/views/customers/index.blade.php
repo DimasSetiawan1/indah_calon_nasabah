@@ -15,23 +15,24 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4" width="5%">No</th>
-                        <th width="15%">NIK</th>
+                        <th class="ps-4" width="8%">No</th>
                         <th>Nama Lengkap</th>
-                        <th width="25%">Alamat</th>
-                        <th width="15%">No. HP</th>
-                        <th class="text-center pe-4" width="15%">Aksi</th>
+                        <th width="30%">Alamat</th>
+                        <th width="20%">No. HP</th>
+                        <th class="text-center pe-4" width="18%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($customers as $key => $customer)
                     <tr>
                         <td class="ps-4 text-muted">{{ $key + 1 }}</td>
-                        <td class="fw-medium text-secondary">{{ $customer->nik }}</td>
                         <td class="fw-bold">{{ $customer->name }}</td>
                         <td class="text-muted small">{{ \Illuminate\Support\Str::limit($customer->address, 40) }}</td>
                         <td>{{ $customer->phone ?? '-' }}</td>
                         <td class="text-center pe-4">
+                            <a href="{{ route('customers.detail', $customer->id) }}" class="btn btn-sm btn-outline-info" title="Detail Hasil Evaluasi">
+                                <i class="bi bi-eye"></i>
+                            </a>
                             <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-sm btn-outline-warning" title="Ubah">
                                 <i class="bi bi-pencil-square"></i>
                             </a>

@@ -99,7 +99,7 @@
             @csrf
             <div class="mb-4">
                 <label class="form-label fw-semibold text-dark mb-2">Nama Pengguna</label>
-                <input type="text" name="username" class="form-control" placeholder="username"
+                <input type="text" name="username" class="form-control" placeholder="Nama Pengguna"
                     value="{{ old('username') }}" required autofocus>
             </div>
             <div class="mb-4">

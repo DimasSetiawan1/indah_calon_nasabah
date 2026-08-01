@@ -129,4 +129,12 @@ class CustomerController extends Controller
         $customer->delete();
         return redirect()->route('customers.index')->with('success', 'Data nasabah berhasil dihapus.');
     }
+
+    public function showDetail(Customer $customer)
+    {
+        $criterias = Criteria::with('subcriterias')->get();
+        $assessments = Assessment::where('nasabah_id', $customer->id)->get()->keyBy('kriteria_id');
+
+        return view('customers.show', compact('customer', 'criterias', 'assessments'));
+    }
 }

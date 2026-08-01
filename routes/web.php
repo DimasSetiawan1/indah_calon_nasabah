@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:admin,cap,mce'])->group(function () {
         Route::get('/topsis', [TopsisController::class, 'index'])->name('topsis.index');
         Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+        Route::get('/customers/{customer}/detail', [CustomerController::class, 'showDetail'])->name('customers.detail');
     });
 
     // ==========================================
