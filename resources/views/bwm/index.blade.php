@@ -218,38 +218,6 @@
                                 </table>
                             </div>
                         </div>
-                    @else
-                        <!-- TAMPILAN MATRIKS PRIORITAS AKTIF DATABASE SEMENTARA -->
-                        <div class="mt-4 border-top pt-4">
-                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-check2-circle text-primary me-2"></i> Tingkat
-                                Prioritas Indikator Aktif Saat Ini di Database</h6>
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Kode</th>
-                                            <th>Nama Indikator</th>
-                                            <th class="text-center">Tipe</th>
-                                            <th class="text-center">Tingkat Prioritas ($w_j$)</th>
-                                            <th class="text-center">Persentase (%)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($criterias as $c)
-                                            <tr>
-                                                <td class="fw-bold">{{ $c->code }}</td>
-                                                <td>{{ $c->name }}</td>
-                                                <td class="text-center"><span
-                                                        class="badge bg-secondary">{{ strtoupper($c->type) }}</span></td>
-                                                <td class="text-center fw-bold text-primary">{{ round($c->weight, 4) }}</td>
-                                                <td class="text-center fw-bold text-success">
-                                                    {{ round(($c->weight ?? 0) * 100, 2) }}%</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
                     @endif
 
                 </div>

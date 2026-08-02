@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Criteria;
 use App\Models\Subcriteria;
 use App\Models\Assessment;
+use App\Http\Controllers\TopsisController;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -66,7 +67,10 @@ class CustomerController extends Controller
             }
         }
 
-        return redirect()->route('customers.index')->with('success', 'Data calon nasabah dan pilihan kriteria berhasil ditambahkan.');
+        // Otomatis hitung ulang perangkingan TOPSIS dengan bobot default BWM
+        app(TopsisController::class)->recalculateAll();
+
+        return redirect()->route('customers.index')->with('success', 'Data calon nasabah dan pilihan kriteria berhasil ditambahkan dan langsung terhitung ke sistem perangkingan.');
     }
 
     public function edit(Customer $customer)
@@ -121,12 +125,17 @@ class CustomerController extends Controller
             }
         }
 
-        return redirect()->route('customers.index')->with('success', 'Data calon nasabah dan pilihan kriteria berhasil diperbarui.');
+        // Otomatis hitung ulang perangkingan TOPSIS
+        app(TopsisController::class)->recalculateAll();
+
+        return redirect()->route('customers.index')->with('success', 'Data calon nasabah dan pilihan kriteria berhasil diperbarui dan terhitung ulang ke sistem perangkingan.');
     }
 
     public function destroy(Customer $customer)
     {
         $customer->delete();
+        app(TopsisController::class)->recalculateAll();
+
         return redirect()->route('customers.index')->with('success', 'Data nasabah berhasil dihapus.');
     }
 

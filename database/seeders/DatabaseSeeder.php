@@ -6,6 +6,7 @@ use App\Models\Criteria;
 use App\Models\Subcriteria;
 use App\Models\Customer;
 use App\Models\Assessment;
+use App\Http\Controllers\TopsisController;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -34,13 +35,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'cap'
         ]);
 
-        // 1. Data Kriteria (Sesuai Dokumen Paper)
+        // 1. Data Kriteria dengan Bobot Default Hasil BWM
         $criterias = [
-            ['code' => 'C1', 'name' => 'Penghasilan', 'type' => 'benefit'],
-            ['code' => 'C2', 'name' => 'Pekerjaan', 'type' => 'benefit'],
-            ['code' => 'C3', 'name' => 'Riwayat Kredit', 'type' => 'benefit'],
-            ['code' => 'C4', 'name' => 'Jaminan Kendaraan', 'type' => 'benefit'],
-            ['code' => 'C5', 'name' => 'Tempat Tinggal', 'type' => 'benefit'],
+            ['code' => 'C1', 'name' => 'Penghasilan', 'type' => 'benefit', 'weight' => 0.2428],
+            ['code' => 'C2', 'name' => 'Pekerjaan', 'type' => 'benefit', 'weight' => 0.1730],
+            ['code' => 'C3', 'name' => 'Riwayat Kredit', 'type' => 'benefit', 'weight' => 0.3856],
+            ['code' => 'C4', 'name' => 'Jaminan Kendaraan', 'type' => 'benefit', 'weight' => 0.1214],
+            ['code' => 'C5', 'name' => 'Tempat Tinggal', 'type' => 'benefit', 'weight' => 0.0771],
         ];
 
         $criteriaModels = [];
@@ -136,5 +137,8 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+
+        // Kalkulasi otomatis awal perangkingan TOPSIS
+        app(TopsisController::class)->recalculateAll();
     }
 }
