@@ -74,76 +74,82 @@ Tujuan dari fase ini adalah untuk mencari nasabah mana yang paling dekat dengan 
 7. Akses sistem di `http://localhost:8000`.
 
 **Kredensial Login Default:**
-- **Email:** `admin@fif.com`
-- **Password:** `password`
+- **Admin (Pengatur Bobot Indikator):** `admin` / `password`
+- **MCE (Marketing Credit Executive):** `mce` / `password`
+- **CAP (Credit Analyst & Approval Person):** `cap` / `password`
 
 ---
 
-## Struktur Database & Relasi (Class Diagram)
+## Spesifikasi Tabel Database (Database Table Specifications)
 
-Sistem ini memiliki 4 entitas utama dalam basis data. Berikut adalah detail struktur tabel dan relasinya yang dapat digunakan sebagai acuan untuk membuat *Class Diagram* atau *Entity Relationship Diagram* (ERD):
+Berikut adalah tabel spesifikasi teknis dari seluruh entitas basis data yang digunakan dalam sistem ini:
 
-### 1. Tabel `pengguna`
-Tabel ini digunakan untuk autentikasi dan manajemen akses admin.
-* `id` (PK, BigInt)
-* `name` (String)
-* `email` (String, Unique)
-* `email_verified_at` (Timestamp, Nullable)
-* `password` (String)
-* `remember_token` (String, Nullable)
-* `timestamps` (created_at, updated_at)
-* **Relasi:** Tidak memiliki relasi langsung ke tabel transaksi/master lainnya.
+### 1. Spesifikasi Tabel `kriteria`
+Tabel ini menyimpan data kriteria/indikator penilaian utama beserta bobot ($w_j$) hasil perhitungan BWM.
 
-### 2. Tabel `kriteria`
-Menyimpan data kriteria penilaian beserta bobot (hasil perhitungan BWM).
-* `id` (PK, BigInt)
-* `code` (String, Unique) - *Contoh: C1, C2*
-* `name` (String) - *Contoh: Penghasilan, Usia*
-* `type` (Enum: 'benefit', 'cost')
-* `weight` (Double, Nullable) - *Nilai bobot prioritas kriteria dari BWM*
-* `timestamps` (created_at, updated_at)
-* **Relasi:** *One-to-Many* (`hasMany`) ke tabel `penilaian`. (Satu kriteria bisa memiliki banyak nilai penilaian).
+| Nama Field | Tipe Data | Key / Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | BigInt (Unsigned) | Primary Key, Auto Increment | Identifier unik kriteria |
+| `code` | Varchar(255) | Unique, Not Null | Kode Kriteria (C1, C2, C3, C4, C5) |
+| `name` | Varchar(255) | Not Null | Nama Indikator Penilaian (Penghasilan, Pekerjaan, dll) |
+| `type` | Enum('benefit', 'cost') | Not Null | Sifat kriteria |
+| `weight` | Double | Nullable | Bobot kriteria ($w_j$) dari BWM |
+| `created_at` | Timestamp | Nullable | Waktu pembuatan record |
+| `updated_at` | Timestamp | Nullable | Waktu pembaruan record |
 
-### 3. Tabel `nasabah`
-Menyimpan biodata calon nasabah beserta hasil akhir dari perhitungan TOPSIS.
-* `id` (PK, BigInt)
-* `nik` (String, Unique)
-* `name` (String)
-* `address` (String)
-* `phone` (String, Nullable)
-* `topsis_score` (Double, Nullable) - *Nilai akhir (Preferensi CCi)*
-* `topsis_rank` (Integer, Nullable) - *Hasil peringkat nasabah*
-* `timestamps` (created_at, updated_at)
-* **Relasi:** *One-to-Many* (`hasMany`) ke tabel `penilaian` dan `surat_kontrak`.
+### 2. Spesifikasi Tabel `subkriteria`
+Tabel ini menyimpan rincian pilihan opsi/subkriteria untuk masing-masing kriteria beserta nilai skalanya (1-5).
 
-### 4. Tabel `penilaian`
-Tabel transaksi (*pivot*) yang menyimpan penilaian (skor) aktual setiap nasabah pada setiap kriteria.
-* `id` (PK, BigInt)
-* `nasabah_id` (FK, BigInt) -> *Merujuk ke tabel `nasabah`*
-* `kriteria_id` (FK, BigInt) -> *Merujuk ke tabel `kriteria`*
-* `value` (Double) - *Nilai penilaian nasabah pada kriteria tersebut*
-* `timestamps` (created_at, updated_at)
-* **Relasi:**
-  * *Many-to-One* (`belongsTo`) ke tabel `nasabah`.
-  * *Many-to-One* (`belongsTo`) ke tabel `kriteria`.
+| Nama Field | Tipe Data | Key / Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | BigInt (Unsigned) | Primary Key, Auto Increment | Identifier unik subkriteria |
+| `kriteria_id` | BigInt (Unsigned) | Foreign Key (`kriteria.id`), Cascade Delete | Merujuk ke Kriteria Induk |
+| `name` | Varchar(255) | Not Null | Deskripsi pilihan subkriteria |
+| `score` | Integer | Not Null | Skala nilai subkriteria (1 - 5) |
+| `created_at` | Timestamp | Nullable | Waktu pembuatan record |
+| `updated_at` | Timestamp | Nullable | Waktu pembaruan record |
 
-### 5. Tabel `surat_kontrak` *(BARU)*
-Menyimpan data surat kontrak yang diterbitkan setelah persetujuan berjenjang (Admin → CAP).
-* `id` (PK, BigInt)
-* `nasabah_id` (FK, BigInt) -> *Merujuk ke tabel `nasabah`*
-* `nomor_kontrak` (String, Unique) - *Nomor kontrak yang di-generate otomatis*
-* `status` (Enum: 'disetujui_admin', 'disetujui_cap', 'aktif', 'selesai')
-* `tanggal_kontrak` (Date, Nullable)
-* `keterangan` (Text, Nullable)
-* `timestamps` (created_at, updated_at)
-* **Relasi:** *Many-to-One* (`belongsTo`) ke tabel `nasabah`.
+### 3. Spesifikasi Tabel `nasabah`
+Tabel ini menyimpan biodata calon nasabah, skor preferensi TOPSIS, peringkat, dan status persetujuan dari CAP.
 
-### Ringkasan Relasi Utama
-Pusat relasi berada pada tabel `penilaian` yang menjembatani antara nasabah dan kriteria:
+| Nama Field | Tipe Data | Key / Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | BigInt (Unsigned) | Primary Key, Auto Increment | Identifier unik nasabah |
+| `nik` | Varchar(255) | Unique, Not Null | NIK (Nomor Induk Kependudukan 16 digit) |
+| `name` | Varchar(255) | Not Null | Nama Lengkap Nasabah |
+| `address` | Varchar(255) | Not Null | Alamat Domisili Nasabah |
+| `phone` | Varchar(255) | Nullable | Nomor HP / WhatsApp Nasabah |
+| `topsis_score` | Double | Nullable | Skor Preferensi TOPSIS ($CC_i$) |
+| `topsis_rank` | Integer | Nullable | Peringkat Rekomendasi Kelayakan |
+| `status_persetujuan` | Enum('tertunda', 'disetujui', 'ditolak') | Default 'tertunda' | Status Keputusan CAP |
+| `created_at` | Timestamp | Nullable | Waktu pembuatan record |
+| `updated_at` | Timestamp | Nullable | Waktu pembaruan record |
 
-**`nasabah`** `(1) ──── (M)` **`penilaian`** `(M) ──── (1)` **`kriteria`**
+### 4. Spesifikasi Tabel `penilaian`
+Tabel transaksi (*junction table*) yang menyimpan nilai evaluasi subkriteria setiap calon nasabah terhadap masing-masing kriteria (membentuk Matriks Keputusan $X_{ij}$).
 
-**`nasabah`** `(1) ──── (M)` **`surat_kontrak`**
+| Nama Field | Tipe Data | Key / Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | BigInt (Unsigned) | Primary Key, Auto Increment | Identifier unik penilaian |
+| `nasabah_id` | BigInt (Unsigned) | Foreign Key (`nasabah.id`), Cascade Delete | Merujuk ke Nasabah |
+| `kriteria_id` | BigInt (Unsigned) | Foreign Key (`kriteria.id`), Cascade Delete | Merujuk ke Kriteria Penilaian |
+| `value` | Double | Not Null | Nilai skor subkriteria yang dipilih (1 - 5) |
+| `created_at` | Timestamp | Nullable | Waktu pembuatan record |
+| `updated_at` | Timestamp | Nullable | Waktu pembaruan record |
+
+### 5. Spesifikasi Tabel `users`
+Tabel ini menyimpan data akun pengguna aplikasi dan peran hak akses (*role-based access control*).
+
+| Nama Field | Tipe Data | Key / Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | BigInt (Unsigned) | Primary Key, Auto Increment | Identifier unik pengguna |
+| `name` | Varchar(255) | Not Null | Nama Lengkap Pengguna |
+| `username` | Varchar(255) | Unique, Not Null | Username untuk Login |
+| `email` | Varchar(255) | Unique, Not Null | Alamat Email Pengguna |
+| `password` | Varchar(255) | Not Null | Kata Sandi (Terenkripsi Hash) |
+| `role` | Enum('admin', 'mce', 'cap') | Not Null | Peran Hak Akses Pengguna |
+| `created_at` | Timestamp | Nullable | Waktu pembuatan record |
+| `updated_at` | Timestamp | Nullable | Waktu pembaruan record |
 
 ---
 
@@ -154,61 +160,8 @@ Berdasarkan analisis *Activity Diagram* dari sistem usulan, berikut adalah atura
 ### A. Aturan Bisnis (Business Rules) & Alur Kerja
 
 #### Alur Utama (Happy Path)
-1. **Otentikasi Akses:** Setiap pengguna wajib melakukan *login* menggunakan nama pengguna dan kata sandi yang valid. Sistem memvalidasi kredensial — jika **berhasil (Y)**, pengguna diarahkan ke *Dashboard Utama*.
-2. **Pengajuan Calon Nasabah (MCE):** Aktor **MCE** memasukkan biodata calon nasabah melalui formulir. Sistem memvalidasi kelengkapan data — jika **berhasil (Y)**, data disimpan ke *Database* tabel `Nasabah` dan masuk ke *Daftar Calon Nasabah*.
-3. **Pengelolaan & Perhitungan Kelayakan (Admin):** Aktor **Admin** membuka *Daftar Calon Nasabah*, memiliki wewenang penuh untuk menambah (input), mengubah, atau menghapus nasabah, melakukan pengaturan kriteria *Best* dan *Worst* (BWM), menjalankan perhitungan TOPSIS, dan memvalidasi hasil. Jika Admin **menyetujui (Y)**, nasabah dipindahkan ke *Daftar Nasabah Disetujui*.
-4. **Persetujuan Final & Kontrak (CAP):** Aktor **CAP** menerima *Daftar Nasabah Disetujui* dari Admin, kemudian melakukan persetujuan akhir dan **membuat Surat Kontrak**.
-5. **Pencatatan Kontrak (Sistem):** Sistem meng-*generate* **Nomor Surat Kontrak** secara otomatis dan menyimpan data surat kontrak ke *Database* (tabel `Surat Kontrak`).
-6. **Informasi Pencairan (MCE):** Sistem menampilkan **Informasi Pencairan Dana Nasabah**. Aktor MCE menerima notifikasi bahwa dana untuk nasabah tersebut telah cair, dan siklus pengajuan selesai.
-
-#### Alur Alternatif (Skenario Gagal / Penolakan)
-* **Validasi Login GAGAL (T):** Jika kredensial salah, sistem menolak akses dan MCE harus menginput ulang nama pengguna dan kata sandi.
-* **Validasi Data Nasabah GAGAL (T):** Jika data calon nasabah tidak lolos validasi (tidak lengkap/tidak sesuai format), sistem mengembalikan MCE ke halaman formulir input untuk diperbaiki. Data **tidak** masuk ke daftar calon nasabah.
-* **Admin Menolak (T) / Validasi Admin GAGAL:** Jika Admin menilai calon nasabah tidak layak setelah melihat hasil perhitungan, Admin **tidak** menyetujui pengajuan sehingga nasabah **tidak** diteruskan ke antrian CAP.
-
-### B. Product Requirements Document (PRD)
-
-#### 1. Tujuan Produk
-Membangun sistem terpusat untuk mengotomatisasi proses pengajuan nasabah, penilaian kelayakan secara objektif (BWM & TOPSIS), persetujuan berjenjang, hingga penerbitan surat kontrak dan notifikasi pencairan dana.
-
-#### 2. Pengguna Sistem (Aktor / Role)
-* **MCE (Marketing Credit Executive):** Pengguna yang mencari dan mendaftarkan calon nasabah dari lapangan.
-* **Admin:** Pihak yang bertanggung jawab penuh atas pengelolaan perhitungan kelayakan (menentukan kriteria *Best* dan *Worst*, menjalankan BWM-TOPSIS), melakukan verifikasi data, dan memberikan persetujuan tahap pertama.
-* **CAP (Credit Analyst / Approval Person):** Pihak pengambil keputusan akhir yang memberikan *Final Approval* dan menerbitkan surat kontrak perjanjian.
-
-#### 3. Kebutuhan Fitur (Features)
-
-* **Modul Autentikasi (Multi-role):**
-  * Halaman Login terpusat untuk semua aktor (MCE, Admin, CAP).
-  * Validasi kredensial — tampilkan pesan error dan kembali ke form login jika gagal.
-  * Pembatasan hak akses (*middleware*) dan pengalihan ke *dashboard* masing-masing peran setelah login berhasil.
-
-* **Modul Input & Pelacakan Nasabah (Akses: MCE):**
-  * Form pengisian biodata calon nasabah (NIK, Nama, Alamat, Telepon, dan nilai per kriteria).
-  * Validasi *form* sisi server dan klien — tampilkan pesan error spesifik jika data tidak valid.
-  * Halaman **Informasi Dana Nasabah Cair**: menampilkan notifikasi/status akhir bahwa pengajuan telah selesai dan dana nasabah telah dicairkan.
-
-* **Modul Pengelolaan & Perhitungan Kelayakan (Akses: Admin):**
-  * Halaman **Daftar Calon Nasabah**: menampilkan seluruh pengajuan MCE yang masuk beserta data nilainya.
-  * Halaman **Pengaturan Kriteria (BWM)**: form untuk menentukan kriteria *Best* (terbaik) dan *Worst* (terburuk), serta memasukkan nilai perbandingan BO dan OW.
-  * Fitur **Hitung Bobot BWM**: tombol eksekusi untuk menghitung dan menyimpan bobot ($w_j$) ke database.
-  * Fitur **Hitung TOPSIS**: tombol eksekusi untuk menjalankan perangkingan seluruh calon nasabah berdasarkan bobot BWM.
-  * Tampilan hasil skor TOPSIS ($CC_i$) dan peringkat untuk setiap calon nasabah.
-  * Tombol **Setuju (Approve)** untuk memindahkan nasabah yang layak ke *Daftar Nasabah Disetujui* dan meneruskannya ke CAP.
-
-* **Modul Approval & Pembuatan Kontrak (Akses: CAP):**
-  * Halaman **Daftar Nasabah Disetujui**: menampilkan nasabah yang telah disetujui Admin (terpisah dari daftar calon).
-  * Tombol **Setuju Final (Final Approve)** sebagai persetujuan akhir oleh CAP.
-  * Fitur **Buat Surat Kontrak**: form atau *generate* otomatis surat kontrak untuk nasabah yang disetujui.
-
-* **Modul Arsip Kontrak & Database:**
-  * *Generate* Nomor Surat Kontrak secara otomatis dan sistematis.
-  * Penyimpanan data Surat Kontrak di tabel `surat_kontrak` dalam *Database*.
-  * Sistem memperbarui status pencairan nasabah sehingga informasi dapat ditampilkan ke MCE.
-
-* **Entitas Database yang Dibutuhkan (sesuai diagram):**
-  * Tabel `MCE` / `users` — data akun pengguna (MCE, Admin, CAP).
-  * Tabel `customers` (Nasabah) — biodata dan hasil TOPSIS calon nasabah.
-  * Tabel `surat_kontrak` — nomor dan detail kontrak yang dibuat oleh CAP.
-  * Tabel `criterias` — kriteria penilaian beserta bobot BWM.
-  * Tabel `assessments` — nilai per kriteria untuk tiap calon nasabah.
+1. **Otentikasi Akses:** Setiap pengguna wajib melakukan *login* menggunakan username dan password yang valid. Sistem memvalidasi kredensial — jika **berhasil (Y)**, pengguna diarahkan ke *Dashboard Utama*.
+2. **Pengajuan Calon Nasabah (MCE):** Aktor **MCE** memasukkan biodata calon nasabah serta memilih subkriteria indikator melalui formulir. Sistem memvalidasi kelengkapan data — jika **berhasil (Y)**, data disimpan ke *Database* tabel `nasabah` dan `penilaian`.
+3. **Pengelolaan & Perhitungan Kelayakan (Admin):** Aktor **Admin** mengatur perbandingan kriteria *Best* dan *Worst* (BWM), menjalankan perhitungan bobot BWM dan perangkingan TOPSIS.
+4. **Persetujuan Final (CAP):** Aktor **CAP** meninjau pengajuan calon nasabah yang terdaftar sebagai *Layak* atau *Sangat Layak*, kemudian melakukan persetujuan (*Approve*) atau penolakan (*Reject*).
+5. **Pemantauan Hasil (MCE):** Aktor MCE dapat melihat status akhir kelayakan dan persetujuan dari CAP beserta penjelasan evaluasi detail nasabah.
