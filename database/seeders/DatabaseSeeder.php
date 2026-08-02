@@ -34,13 +34,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'cap'
         ]);
 
-        // 1. Data Kriteria
+        // 1. Data Kriteria (Sesuai Dokumen Paper)
         $criterias = [
             ['code' => 'C1', 'name' => 'Penghasilan', 'type' => 'benefit'],
             ['code' => 'C2', 'name' => 'Pekerjaan', 'type' => 'benefit'],
             ['code' => 'C3', 'name' => 'Riwayat Kredit', 'type' => 'benefit'],
             ['code' => 'C4', 'name' => 'Jaminan Kendaraan', 'type' => 'benefit'],
-            ['code' => 'C5', 'name' => 'Lama Tempat Tinggal', 'type' => 'benefit'],
+            ['code' => 'C5', 'name' => 'Tempat Tinggal', 'type' => 'benefit'],
         ];
 
         $criteriaModels = [];
@@ -48,14 +48,14 @@ class DatabaseSeeder extends Seeder
             $criteriaModels[$c['code']] = Criteria::create($c);
         }
 
-        // 2. Data Subkriteria
+        // 2. Data Subkriteria (Sesuai Dokumen Paper 100%)
         $subcriteriasData = [
             'C1' => [
-                ['name' => '> Rp 7.000.000 (Sangat Tinggi)', 'score' => 5],
-                ['name' => 'Rp 6.000.000 - Rp 6.999.999 (Tinggi)', 'score' => 4],
-                ['name' => 'Rp 5.000.000 - Rp 5.999.999 (Sedang / Setara UMR)', 'score' => 3],
-                ['name' => 'Rp 4.000.000 - Rp 4.499.999 (Rendah)', 'score' => 2],
-                ['name' => '< Rp 2.500.000 (Sangat Rendah)', 'score' => 1],
+                ['name' => '> Rp 10.000.000 (Sangat Tinggi)', 'score' => 5],
+                ['name' => 'Rp 6.000.000 - Rp 10.000.000 (Tinggi)', 'score' => 4],
+                ['name' => 'Rp 3.500.000 - Rp 5.999.999 (Sedang / Setara UMR)', 'score' => 3],
+                ['name' => 'Rp 1.500.000 - Rp 3.499.999 (Rendah)', 'score' => 2],
+                ['name' => '< Rp 1.500.000 (Sangat Rendah)', 'score' => 1],
             ],
             'C2' => [
                 ['name' => 'PNS / TNI / POLRI / Pegawai BUMN', 'score' => 5],
@@ -98,33 +98,39 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 3. Data Calon Nasabah Dummy (dengan Penilaian Awal)
+        // 3. Data 20 Calon Nasabah Real (diambil dari DATA NASABAH.csv)
         $customers = [
-            ['nik' => '3201010000000001', 'name' => 'Budi Santoso', 'address' => 'Jl. Merdeka No. 10, Jakarta', 'phone' => '081234567890'],
-            ['nik' => '3201010000000002', 'name' => 'Siti Aminah', 'address' => 'Jl. Sudirman No. 45, Bandung', 'phone' => '082345678901'],
-            ['nik' => '3201010000000003', 'name' => 'Andi Wijaya', 'address' => 'Jl. Diponegoro No. 8, Surabaya', 'phone' => '083456789012'],
-            ['nik' => '3201010000000004', 'name' => 'Dewi Lestari', 'address' => 'Jl. Pahlawan No. 22, Semarang', 'phone' => '084567890123'],
-            ['nik' => '3201010000000005', 'name' => 'Rahmat Hidayat', 'address' => 'Jl. Gajah Mada No. 1, Yogyakarta', 'phone' => '085678901234'],
+            ['nik' => '3175063101020000', 'name' => 'ADITYA YUDA PRATAMA', 'address' => 'UJUNG MENTENG NO 20 RT.003 RW.002 KEL.UJUNG MENTENG KEC.CAKUNG', 'phone' => '085775027271', 'scores' => ['C1' => 4, 'C2' => 4, 'C3' => 5, 'C4' => 4, 'C5' => 3]],
+            ['nik' => '3275024204820020', 'name' => 'KIKIE LESTARI', 'address' => 'JL.MELUR 5 NO 31 RT.003 RW.010 KEL.JAKA SAMPURNA KEC.BEKASI BARAT', 'phone' => '087724973686', 'scores' => ['C1' => 4, 'C2' => 4, 'C3' => 4, 'C4' => 1, 'C5' => 2]],
+            ['nik' => '3275110604720000', 'name' => 'MASIM', 'address' => 'KP.BABAKAN RT.003 RW.004 KEL.MUSTIKASARI KEC.MUSTIKA JAYA', 'phone' => '081383509284', 'scores' => ['C1' => 3, 'C2' => 3, 'C3' => 4, 'C4' => 2, 'C5' => 5]],
+            ['nik' => '3275114208710000', 'name' => 'NENI LENIAWATI', 'address' => 'JL.DURIAN 9 BLK D 10 NO 2 RT.005 RW.016 KEL.PADURENAN KEC.MUSTIKA JAYA', 'phone' => '082114013749', 'scores' => ['C1' => 3, 'C2' => 1, 'C3' => 3, 'C4' => 1, 'C5' => 5]],
+            ['nik' => '3275020403670010', 'name' => 'DAHLAN', 'address' => 'JL BINTARA 1 RT.008 RW.002 KEL.BINTARA KEC.BEKASI BARAT', 'phone' => '081381137353', 'scores' => ['C1' => 3, 'C2' => 3, 'C3' => 4, 'C4' => 4, 'C5' => 5]],
+            ['nik' => '3216184404920000', 'name' => 'FITRIYANI', 'address' => 'KP RAWA ATUG RT.002 RW.006 KEL.CIBENING KEC.SETU', 'phone' => '085280323377', 'scores' => ['C1' => 3, 'C2' => 3, 'C3' => 3, 'C4' => 2, 'C5' => 5]],
+            ['nik' => '3175076003780000', 'name' => 'AMALIA CATRIEN PERTIWI', 'address' => 'JL.MAWAR MERAH RAYA BLOK 32 NO 5 RT.009 RW.012 KEL.MALAKA JAYA KEC.DUREN SAWIT', 'phone' => '085697150679', 'scores' => ['C1' => 5, 'C2' => 4, 'C3' => 5, 'C4' => 3, 'C5' => 5]],
+            ['nik' => '3275011610850010', 'name' => 'ADE SUPRIYADI', 'address' => 'TELUK PUCUNG RT.001 RW.001 KEL.TELUK PUCUNG KEC.BEKASI UTARA', 'phone' => '0895333142207', 'scores' => ['C1' => 3, 'C2' => 4, 'C3' => 4, 'C4' => 3, 'C5' => 5]],
+            ['nik' => '3174056005010000', 'name' => 'FANY INDRIANY', 'address' => 'JL PATRIOT VI NO 128 RT.002 RW.024 KEL.SETIAMEKAR KEC.TAMBUN UTARA', 'phone' => '081943651353', 'scores' => ['C1' => 3, 'C2' => 4, 'C3' => 4, 'C4' => 2, 'C5' => 3]],
+            ['nik' => '3275056212760030', 'name' => 'FINA DWIHANA', 'address' => 'JL PANDEGA III NO 145 RT.003 RW.007 KEL.BOJONG RAWALUMBU KEC.RAWALUMBU', 'phone' => '085900018878', 'scores' => ['C1' => 3, 'C2' => 2, 'C3' => 3, 'C4' => 1, 'C5' => 5]],
+            ['nik' => '3216022303000000', 'name' => 'YUDHA PUTRA PERWIRA', 'address' => 'PUP SEKTOR V BLOK F1 NO 7 RT.001 RW.023 KEL.BAHAGIA KEC.BABELAN', 'phone' => '089692220700', 'scores' => ['C1' => 3, 'C2' => 4, 'C3' => 4, 'C4' => 5, 'C5' => 3]],
+            ['nik' => '3275046305900000', 'name' => 'HENI ATIKAWATI', 'address' => 'KP PULO CEGER RT.004 RW.003 KEL.JAKASETIA KEC.BEKASI SELATAN', 'phone' => '082210982854', 'scores' => ['C1' => 2, 'C2' => 1, 'C3' => 2, 'C4' => 1, 'C5' => 2]],
+            ['nik' => '3275034809920030', 'name' => 'KEZIA ELIZABETH NABABAN', 'address' => 'DUTA HARAPAN BLOK AF V NO 2 RT.003 RW.010 KEL.HARAPAN BARU KEC.BEKASI UTARA', 'phone' => '081514663040', 'scores' => ['C1' => 4, 'C2' => 4, 'C3' => 5, 'C4' => 2, 'C5' => 1]],
+            ['nik' => '3175025001000000', 'name' => 'NING SALSABILA P WIJAYA', 'address' => 'KP.MARIUK RT.003 RW.004 KEL.GANDASARI KEC.CIKARANG BARAT', 'phone' => '087811865677', 'scores' => ['C1' => 3, 'C2' => 3, 'C3' => 4, 'C4' => 4, 'C5' => 3]],
+            ['nik' => '3216060808940000', 'name' => 'RADITYA SURIPTO PUTRA', 'address' => 'BEKASI TIMUR PERMAI BLOK C3 NO 13 RT.020 RW.012 KEL.SETIAMEKAR KEC.TAMBUN SELATAN', 'phone' => '085121353299', 'scores' => ['C1' => 4, 'C2' => 4, 'C3' => 5, 'C4' => 5, 'C5' => 5]],
+            ['nik' => '3175035908950000', 'name' => 'SHEILA ARISTA SUWANDI', 'address' => 'BEKASI TIMUR REGENCY V CLUSTER FARGESIA BLOK F9 NO 72 RT.001 RW.012 KEL.SUMUR BATU KEC.BANTARGEBANG', 'phone' => '089515390087', 'scores' => ['C1' => 4, 'C2' => 4, 'C3' => 4, 'C4' => 1, 'C5' => 5]],
+            ['nik' => '3275044712810020', 'name' => 'HERLINA SETYOSARI', 'address' => 'KOMP DDN BLOK A NO 3 RT.001 RW.010 KEL.JATIWARINGIN KEC.PONDOK GEDE', 'phone' => '087734252015', 'scores' => ['C1' => 3, 'C2' => 4, 'C3' => 4, 'C4' => 1, 'C5' => 5]],
+            ['nik' => '3275046609010010', 'name' => 'KARINA PUTRI WIJAYA', 'address' => 'KP KAYURINGIN RT.006 RW.012 KEL.KAYURINGIN JAYA KEC.BEKASI SELATAN', 'phone' => '081286291374', 'scores' => ['C1' => 3, 'C2' => 4, 'C3' => 4, 'C4' => 4, 'C5' => 3]],
+            ['nik' => '3275026401920000', 'name' => 'VIDIA CAHYA ANGGRAINI', 'address' => 'BEKASI TIMUR REGENCY V CLUSTER FARGESIA BLOK F9 NO 56 RT.001 RW.012 KEL.SUMUR BATU KEC.BANTARGEBANG', 'phone' => '081311364533', 'scores' => ['C1' => 3, 'C2' => 4, 'C3' => 4, 'C4' => 3, 'C5' => 5]],
+            ['nik' => '3275080508800020', 'name' => 'YOSE ANANDA', 'address' => 'VILLA NUSA INDAH 2 BLOK U 21 NO 7 RT.002 RW.020 KEL.BOJONG KULUR KEC.GUNUNG PUTRI', 'phone' => '081294129993', 'scores' => ['C1' => 4, 'C2' => 5, 'C3' => 5, 'C4' => 4, 'C5' => 5]],
         ];
 
-        $customerModels = [];
         foreach ($customers as $c) {
-            $customerModels[] = Customer::create($c);
-        }
+            $scores = $c['scores'];
+            unset($c['scores']);
 
-        $assessmentsData = [
-            0 => ['C1' => 4, 'C2' => 4, 'C3' => 5, 'C4' => 4, 'C5' => 5], // Budi Santoso
-            1 => ['C1' => 3, 'C2' => 3, 'C3' => 4, 'C4' => 3, 'C5' => 3], // Siti Aminah
-            2 => ['C1' => 5, 'C2' => 3, 'C3' => 3, 'C4' => 2, 'C5' => 2], // Andi Wijaya
-            3 => ['C1' => 5, 'C2' => 5, 'C3' => 5, 'C4' => 5, 'C5' => 5], // Dewi Lestari
-            4 => ['C1' => 1, 'C2' => 1, 'C3' => 1, 'C4' => 1, 'C5' => 1], // Rahmat Hidayat
-        ];
+            $customerModel = Customer::create($c);
 
-        foreach ($customerModels as $index => $customer) {
-            $scores = $assessmentsData[$index];
             foreach ($scores as $code => $val) {
                 Assessment::create([
-                    'nasabah_id' => $customer->id,
+                    'nasabah_id' => $customerModel->id,
                     'kriteria_id' => $criteriaModels[$code]->id,
                     'value' => $val,
                 ]);

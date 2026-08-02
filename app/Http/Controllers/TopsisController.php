@@ -16,12 +16,10 @@ class TopsisController extends Controller
         
         $isReady = true;
         
-        // 1. Cek Kelengkapan Data
         if ($criterias->isEmpty() || $customers->isEmpty()) {
             $isReady = false;
         }
 
-        // Cek bobot BWM
         foreach ($criterias as $c) {
             if (is_null($c->weight)) {
                 $isReady = false;
@@ -34,6 +32,49 @@ class TopsisController extends Controller
                 'isReady' => false,
                 'errorMsg' => 'Data kriteria/nasabah kosong atau bobot BWM belum dihitung.'
             ]);
+        }
+
+        $this->recalculateAll();
+
+        // Ambil data nasabah yang sudah di-rank
+        $rankedCustomers = Customer::orderBy('topsis_rank', 'asc')->get();
+
+        // Filter untuk role non-admin (opsional)
+        $filteredCustomers = [];
+        foreach ($rankedCustomers as $cust) {
+            $cust->calculated_score = $cust->topsis_score;
+            $cust->calculated_rank = $cust->topsis_rank;
+
+            if (in_array(auth()->user()->role, ['mce', 'cap'])) {
+                if ($cust->topsis_rank <= 3 || $cust->topsis_score >= 0.5) {
+                    $filteredCustomers[] = $cust;
+                }
+            } else {
+                $filteredCustomers[] = $cust;
+            }
+        }
+
+        return view('topsis.index', [
+            'isReady' => true,
+            'criterias' => $criterias,
+            'customers' => $customers,
+            'rankedCustomers' => $filteredCustomers,
+        ]);
+    }
+
+    public function recalculateAll()
+    {
+        $criterias = Criteria::all();
+        $customers = Customer::all();
+
+        if ($criterias->isEmpty() || $customers->isEmpty()) {
+            return false;
+        }
+
+        foreach ($criterias as $c) {
+            if (is_null($c->weight)) {
+                return false;
+            }
         }
 
         // 2. Membentuk Matriks Keputusan X
@@ -80,11 +121,11 @@ class TopsisController extends Controller
         foreach ($criterias as $criteria) {
             $columnValues = array_column($V, $criteria->id);
             if ($criteria->type == 'benefit') {
-                $A_plus[$criteria->id] = max($columnValues);
-                $A_min[$criteria->id] = min($columnValues);
+                $A_plus[$criteria->id] = count($columnValues) > 0 ? max($columnValues) : 0;
+                $A_min[$criteria->id] = count($columnValues) > 0 ? min($columnValues) : 0;
             } else { // cost
-                $A_plus[$criteria->id] = min($columnValues);
-                $A_min[$criteria->id] = max($columnValues);
+                $A_plus[$criteria->id] = count($columnValues) > 0 ? min($columnValues) : 0;
+                $A_min[$criteria->id] = count($columnValues) > 0 ? max($columnValues) : 0;
             }
         }
 
@@ -111,36 +152,17 @@ class TopsisController extends Controller
             $CC[$customer->id] = $cci;
         }
 
-        // 8. Perankingan (hanya untuk array view)
+        // 8. Perankingan
         arsort($CC); 
         $rank = 1;
-        $rankedCustomers = [];
         foreach ($CC as $custId => $score) {
-            // Update db for persistence (optional but good for tracking)
             Customer::where('id', $custId)->update([
                 'topsis_score' => $score,
                 'topsis_rank' => $rank
             ]);
-            
-            $cust = $customers->firstWhere('id', $custId);
-            $cust->calculated_score = $score;
-            $cust->calculated_rank = $rank;
-
-            // Untuk MCE dan CAP, hanya tampilkan yang LAYAK (rank <= 3 atau score >= 0.5)
-            if (in_array(auth()->user()->role, ['mce', 'cap'])) {
-                if ($rank <= 3 || $score >= 0.5) {
-                    $rankedCustomers[] = $cust;
-                }
-            } else {
-                $rankedCustomers[] = $cust;
-            }
-            
             $rank++;
         }
 
-        return view('topsis.index', compact(
-            'isReady', 'criterias', 'customers', 'rankedCustomers',
-            'X', 'R', 'V', 'A_plus', 'A_min', 'D_plus', 'D_min', 'CC'
-        ));
+        return true;
     }
 }

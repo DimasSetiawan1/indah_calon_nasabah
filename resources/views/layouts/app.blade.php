@@ -261,7 +261,7 @@
                         <div class="nav-item">
                             <a href="{{ route('bwm.index') }}"
                                 class="nav-link {{ request()->routeIs('bwm.*') ? 'active' : '' }}">
-                                <i class="bi bi-sliders"></i> Bobot Penilaian
+                                <i class="bi bi-sliders"></i> Prioritas Indikator
                             </a>
                         </div>
                     @endif

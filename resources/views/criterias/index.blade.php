@@ -19,7 +19,7 @@
                         <th width="15%">Kode</th>
                         <th>Nama Kriteria</th>
                         <th width="15%">Jenis</th>
-                        <th width="15%">Bobot (BWM)</th>
+                        <th width="15%">Tingkat Prioritas</th>
                         <th class="text-center pe-4" width="15%">Aksi</th>
                     </tr>
                 </thead>

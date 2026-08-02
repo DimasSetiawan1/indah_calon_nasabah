@@ -59,8 +59,8 @@
                                 <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-weight: bold; font-size: 1.2rem;">2</div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1">Pengaturan Bobot (Admin)</h6>
-                                <p class="text-muted mb-0 small">Admin mengonfigurasi tingkat kepentingan indikator penilaian untuk menghasilkan pembobotan yang presisi.</p>
+                                <h6 class="fw-bold mb-1">Pengaturan Prioritas (Admin)</h6>
+                                <p class="text-muted mb-0 small">Admin mengonfigurasi tingkat kepentingan indikator penilaian untuk menghasilkan tingkat prioritas yang presisi.</p>
                             </div>
                         </div>
                     </div>
