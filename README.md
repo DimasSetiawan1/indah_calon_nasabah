@@ -54,6 +54,179 @@ Tujuan dari fase ini adalah untuk mencari nasabah mana yang paling dekat dengan 
 
 ---
 
+## Listing Program (Core Algorithmic Logic for Paper)
+
+Berikut adalah petikan kode logika utama (*listing program*) yang siap digunakan untuk penulisan karya ilmiah / skripsi / paper:
+
+### 1. Listing Code BWM: Calculation of Criteria Weights
+📍 **Source:** `app/Http/Controllers/BwmController.php`
+
+```php
+public function calculate(Request $request)
+{
+    $criterias = Criteria::all();
+    if ($criterias->count() < 3) {
+        return redirect()->back()->with('error', 'Minimal 3 kriteria diperlukan untuk BWM.');
+    }
+
+    // 1. Menentukan ID Kriteria Terbaik (Best) dan Terburuk (Worst)
+    $best_id  = $request->best_criteria;
+    $worst_id = $request->worst_criteria;
+
+    $bo = $request->bo; // Vektor Best-to-Others (1-9)
+    $ow = $request->ow; // Vektor Others-to-Worst (1-9)
+
+    // Konsistensi dasar: Nilai Best terhadap dirinya sendiri = 1, dan Worst terhadap dirinya = 1
+    $bo[$best_id]  = 1;
+    $ow[$worst_id] = 1;
+
+    // 2. Menghitung Pembagi Aproksimasi Analitik BWM
+    $sum_inv_bo = 0;
+    $sum_ow     = 0;
+
+    foreach ($criterias as $c) {
+        $sum_inv_bo += 1 / max(1, $bo[$c->id]);
+        $sum_ow     += max(1, $ow[$c->id]);
+    }
+
+    $w_bo_list  = [];
+    $w_ow_list  = [];
+    $w_avg_list = [];
+
+    // 3. Menghitung Bobot Parsial (Best-to-Others & Others-to-Worst)
+    foreach ($criterias as $c) {
+        // Bobot dari sudut pandang Kriteria Terbaik (BO)
+        $w_bo_list[$c->id] = (1 / max(1, $bo[$c->id])) / $sum_inv_bo;
+
+        // Bobot dari sudut pandang Kriteria Terburuk (OW)
+        $w_ow_list[$c->id] = max(1, $ow[$c->id]) / $sum_ow;
+
+        // Rata-rata bobot BO dan OW
+        $w_avg_list[$c->id] = ($w_bo_list[$c->id] + $w_ow_list[$c->id]) / 2;
+    }
+
+    // 4. Normalisasi Bobot Akhir (Memastikan Total Bobot = 1 / 100%)
+    $total_avg = array_sum($w_avg_list);
+
+    foreach ($criterias as $c) {
+        $final_weight = $w_avg_list[$c->id] / $total_avg;
+
+        // Simpan bobot kriteria ke database
+        $c->update(['weight' => $final_weight]);
+    }
+
+    // 5. Otomatis Menjalankan Ulang Kalkulasi TOPSIS setelah Bobot BWM Diperbarui
+    app(TopsisController::class)->recalculateAll();
+
+    return redirect()->route('bwm.index')->with('success', 'Bobot kriteria BWM berhasil diperbarui.');
+}
+```
+
+### 2. Listing Code TOPSIS: Alternative Evaluation and Ranking
+📍 **Source:** `app/Http/Controllers/TopsisController.php`
+
+```php
+public function recalculateAll()
+{
+    $criterias = Criteria::all();
+    $customers = Customer::all();
+
+    if ($criterias->isEmpty() || $customers->isEmpty()) {
+        return false;
+    }
+
+    // 1. Membentuk Matriks Keputusan (X)
+    $X = [];
+    foreach ($customers as $customer) {
+        foreach ($criterias as $criteria) {
+            $val = Assessment::where('nasabah_id', $customer->id)
+                             ->where('kriteria_id', $criteria->id)
+                             ->value('value') ?? 0;
+            $X[$customer->id][$criteria->id] = (float)$val;
+        }
+    }
+
+    // 2. Normalisasi Matriks (R) Menggunakan Pembagi Vector Normalization
+    $pembagi = [];
+    foreach ($criterias as $criteria) {
+        $sumSq = 0;
+        foreach ($customers as $customer) {
+            $sumSq += pow($X[$customer->id][$criteria->id], 2);
+        }
+        $pembagi[$criteria->id] = sqrt($sumSq);
+    }
+
+    $R = [];
+    foreach ($customers as $customer) {
+        foreach ($criterias as $criteria) {
+            $val = $X[$customer->id][$criteria->id];
+            $div = $pembagi[$criteria->id];
+            $R[$customer->id][$criteria->id] = ($div == 0) ? 0 : ($val / $div);
+        }
+    }
+
+    // 3. Pembobotan Matriks Normalisasi (V) Menggunakan Bobot BWM ($c->weight)
+    $V = [];
+    foreach ($customers as $customer) {
+        foreach ($criterias as $criteria) {
+            $V[$customer->id][$criteria->id] = $R[$customer->id][$criteria->id] * $criteria->weight;
+        }
+    }
+
+    // 4. Menentukan Solusi Ideal Positif (A+) dan Solusi Ideal Negatif (A-)
+    $A_plus = [];
+    $A_min  = [];
+    foreach ($criterias as $criteria) {
+        $columnValues = array_column($V, $criteria->id);
+        if ($criteria->type == 'benefit') {
+            $A_plus[$criteria->id] = count($columnValues) > 0 ? max($columnValues) : 0;
+            $A_min[$criteria->id]  = count($columnValues) > 0 ? min($columnValues) : 0;
+        } else { // Jenis Kriteria Cost
+            $A_plus[$criteria->id] = count($columnValues) > 0 ? min($columnValues) : 0;
+            $A_min[$criteria->id]  = count($columnValues) > 0 ? max($columnValues) : 0;
+        }
+    }
+
+    // 5. Menhitung Jarak Euclidean Solusi Ideal Positif (D+) dan Negatif (D-)
+    $D_plus = [];
+    $D_min  = [];
+    foreach ($customers as $customer) {
+        $sumDPlus = 0;
+        $sumDMin  = 0;
+        foreach ($criterias as $criteria) {
+            $sumDPlus += pow($V[$customer->id][$criteria->id] - $A_plus[$criteria->id], 2);
+            $sumDMin  += pow($V[$customer->id][$criteria->id] - $A_min[$criteria->id], 2);
+        }
+        $D_plus[$customer->id] = sqrt($sumDPlus);
+        $D_min[$customer->id]  = sqrt($sumDMin);
+    }
+
+    // 6. Menghitung Nilai Preferensi Kelayakan (CCi)
+    $CC = [];
+    foreach ($customers as $customer) {
+        $dp  = $D_plus[$customer->id];
+        $dm  = $D_min[$customer->id];
+        $cci = ($dp + $dm) == 0 ? 0 : ($dm / ($dp + $dm));
+        $CC[$customer->id] = $cci;
+    }
+
+    // 7. Perankingan dan Pembaruan Data Skor & Peringkat Nasabah
+    arsort($CC); // Urutkan dari nilai CCi tertinggi ke terendah
+    $rank = 1;
+    foreach ($CC as $custId => $score) {
+        Customer::where('id', $custId)->update([
+            'topsis_score' => $score,
+            'topsis_rank'  => $rank
+        ]);
+        $rank++;
+    }
+
+    return true;
+}
+```
+
+---
+
 ## Cara Instalasi & Menjalankan Sistem
 
 1. Pastikan Anda memiliki PHP (rekomendasi >= 8.2) dan Composer terinstal.
