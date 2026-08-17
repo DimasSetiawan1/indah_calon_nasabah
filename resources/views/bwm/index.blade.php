@@ -161,65 +161,10 @@
 
                         <div class="d-grid mt-4 mb-4">
                             <button type="submit" class="btn btn-primary py-2.5 fw-bold shadow-sm">
-                                <i class="bi bi-calculator me-2"></i> Hitung & Tampilkan Perhitungan Indikator
+                                <i class="bi bi-calculator me-2"></i> Hitung Prioritas Indikator
                             </button>
                         </div>
                     </form>
-
-                    <!-- TABEL HASIL DILENGKAPI DATA APROKSIMASI ANALITIK BWM UNTUK PAPER -->
-                    @if(session('bwm_details'))
-                        @php $details = session('bwm_details'); @endphp
-                        <div class="mt-5 border-top pt-4">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div>
-                                    <h5 class="fw-bold text-success mb-1">
-                                        <i class="bi bi-file-earmark-spreadsheet-fill me-2"></i> Rincian Perhitungan Aproksimasi
-                                        Analitik BWM
-                                    </h5>
-                                    <p class="text-muted small mb-0">Tabel komputasi lengkap untuk penulisan skripsi & paper
-                                        riset.</p>
-                                </div>
-                                <span class="badge bg-success px-3 py-2 fs-6">
-                                    Konsistensi ($\xi^*$): {{ round($details['consistency_ratio'], 4) }}
-                                </span>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped align-middle">
-                                    <thead class="table-dark text-center">
-                                        <tr>
-                                            <th>Kode</th>
-                                            <th>Nama Indikator</th>
-                                            <th>Vektor BO ($a_{Bj}$)</th>
-                                            <th>Skor BO ($w_{BO}$)</th>
-                                            <th>Vektor OW ($a_{jW}$)</th>
-                                            <th>Skor OW ($w_{OW}$)</th>
-                                            <th>Rata-rata ($w_{avg}$)</th>
-                                            <th>Nilai Akhir ($w_j$)</th>
-                                            <th>Persentase (%)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($details['results'] as $res)
-                                            <tr>
-                                                <td class="text-center fw-bold">{{ $res['code'] }}</td>
-                                                <td>{{ $res['name'] }}</td>
-                                                <td class="text-center fw-semibold text-primary">{{ $res['bo'] }}</td>
-                                                <td class="text-center">{{ round($res['w_bo'], 4) }}</td>
-                                                <td class="text-center fw-semibold text-danger">{{ $res['ow'] }}</td>
-                                                <td class="text-center">{{ round($res['w_ow'], 4) }}</td>
-                                                <td class="text-center">{{ round($res['w_avg'], 4) }}</td>
-                                                <td class="text-center fw-bold text-success bg-success bg-opacity-10">
-                                                    {{ round($res['final_weight'], 4) }}</td>
-                                                <td class="text-center fw-bold text-dark">{{ $res['percentage'] }}%</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    @endif
-
                 </div>
             </div>
         </div>
