@@ -43,7 +43,7 @@
                                     class="form-select border-primary border-opacity-50" required>
                                     @foreach($criterias as $c)
                                         <option value="{{ $c->id }}" {{ ($c->code === 'C3') ? 'selected' : '' }}>
-                                            {{ $c->code }} - {{ $c->name }}
+                                            {{ $c->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -56,7 +56,7 @@
                                     class="form-select border-danger border-opacity-50" required>
                                     @foreach($criterias as $c)
                                         <option value="{{ $c->id }}" {{ ($c->code === 'C5') ? 'selected' : '' }}>
-                                            {{ $c->code }} - {{ $c->name }}
+                                            {{ $c->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -137,7 +137,7 @@
                                         @endphp
                                         <tr>
                                             <td class="fw-medium text-secondary">
-                                                <strong>{{ $c->code }}</strong> - {{ $c->name }}
+                                                {{ $c->name }}
                                             </td>
                                             <td>
                                                 <div class="input-group input-group-sm">
