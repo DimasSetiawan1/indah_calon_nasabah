@@ -35,6 +35,12 @@ class CustomerController extends Controller
             'address.required' => 'Alamat wajib diisi.',
             'phone.required' => 'Nomor HP wajib diisi.',
             'phone.numeric' => 'Nomor HP harus berupa angka.',
+            'nama_barang.required' => 'Nama Barang wajib diisi.',
+            'nilai_barang.required' => 'Nilai Barang wajib diisi.',
+            'nilai_barang.numeric' => 'Nilai Barang harus berupa angka.',
+            'umur.required' => 'Umur wajib diisi.',
+            'umur.numeric' => 'Umur harus berupa angka.',
+            'kategori_persentase.required' => 'Kategori Nasabah wajib dipilih.',
             'criterias.required' => 'Semua pilihan kriteria wajib diisi.',
             'criterias.*.required' => 'Pilihan kriteria wajib diisi.',
         ];
@@ -44,11 +50,20 @@ class CustomerController extends Controller
             'name' => 'required|regex:/^[a-zA-Z\s]+$/',
             'address' => 'required',
             'phone' => 'required|numeric',
+            'nama_barang' => 'required|string',
+            'nilai_barang' => 'required|numeric',
+            'umur' => 'required|numeric',
+            'kategori_persentase' => 'required|string',
             'criterias' => 'required|array',
             'criterias.*' => 'required|exists:subkriteria,id',
         ], $messages);
 
-        $customer = Customer::create($request->only(['nik', 'name', 'address', 'phone']));
+        $kp = explode('|', $request->kategori_persentase);
+        $data = $request->only(['nik', 'name', 'address', 'phone', 'nama_barang', 'nilai_barang', 'umur']);
+        $data['kategori_nasabah'] = $kp[0] ?? null;
+        $data['persentase_pinjaman'] = isset($kp[1]) ? (int) $kp[1] : null;
+
+        $customer = Customer::create($data);
 
         if ($request->has('criterias')) {
             foreach ($request->criterias as $criteriaId => $subcriteriaId) {
@@ -93,6 +108,12 @@ class CustomerController extends Controller
             'address.required' => 'Alamat wajib diisi.',
             'phone.required' => 'Nomor HP wajib diisi.',
             'phone.numeric' => 'Nomor HP harus berupa angka.',
+            'nama_barang.required' => 'Nama Barang wajib diisi.',
+            'nilai_barang.required' => 'Nilai Barang wajib diisi.',
+            'nilai_barang.numeric' => 'Nilai Barang harus berupa angka.',
+            'umur.required' => 'Umur wajib diisi.',
+            'umur.numeric' => 'Umur harus berupa angka.',
+            'kategori_persentase.required' => 'Kategori Nasabah wajib dipilih.',
             'criterias.required' => 'Semua pilihan kriteria wajib diisi.',
             'criterias.*.required' => 'Pilihan kriteria wajib diisi.',
         ];
@@ -102,11 +123,20 @@ class CustomerController extends Controller
             'name' => 'required|regex:/^[a-zA-Z\s]+$/',
             'address' => 'required',
             'phone' => 'required|numeric',
+            'nama_barang' => 'required|string',
+            'nilai_barang' => 'required|numeric',
+            'umur' => 'required|numeric',
+            'kategori_persentase' => 'required|string',
             'criterias' => 'required|array',
             'criterias.*' => 'required|exists:subkriteria,id',
         ], $messages);
 
-        $customer->update($request->only(['nik', 'name', 'address', 'phone']));
+        $kp = explode('|', $request->kategori_persentase);
+        $data = $request->only(['nik', 'name', 'address', 'phone', 'nama_barang', 'nilai_barang', 'umur']);
+        $data['kategori_nasabah'] = $kp[0] ?? null;
+        $data['persentase_pinjaman'] = isset($kp[1]) ? (int) $kp[1] : null;
+
+        $customer->update($data);
 
         if ($request->has('criterias')) {
             foreach ($request->criterias as $criteriaId => $subcriteriaId) {

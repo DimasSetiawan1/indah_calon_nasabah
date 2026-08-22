@@ -41,6 +41,43 @@
                 </div>
             </div>
 
+            <h6 class="fw-bold text-dark border-bottom pb-2 mt-4 mb-3"><i class="bi bi-box me-1 text-secondary"></i> Data Pengajuan Pinjaman</h6>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-medium">Umur Calon Nasabah <span class="text-danger">*</span></label>
+                    <input type="number" name="umur" class="form-control @error('umur') is-invalid @enderror" value="{{ old('umur', $customer->umur) }}" placeholder="Contoh: 25" required>
+                    @error('umur')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-medium">Kategori Nasabah <span class="text-danger">*</span></label>
+                    @php $kp = $customer->kategori_nasabah ? $customer->kategori_nasabah . '|' . $customer->persentase_pinjaman : ''; @endphp
+                    <select name="kategori_persentase" class="form-select @error('kategori_persentase') is-invalid @enderror" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="New Customer|50" {{ old('kategori_persentase', $kp) == 'New Customer|50' ? 'selected' : '' }}>New Customer (50%)</option>
+                        <option value="New Customer|55" {{ old('kategori_persentase', $kp) == 'New Customer|55' ? 'selected' : '' }}>New Customer (55%)</option>
+                        <option value="New Customer|60" {{ old('kategori_persentase', $kp) == 'New Customer|60' ? 'selected' : '' }}>New Customer (60%)</option>
+                        <option value="New Customer|65" {{ old('kategori_persentase', $kp) == 'New Customer|65' ? 'selected' : '' }}>New Customer (65%)</option>
+                        <option value="Medium|75" {{ old('kategori_persentase', $kp) == 'Medium|75' ? 'selected' : '' }}>Medium (75%)</option>
+                        <option value="Good Loyal|85" {{ old('kategori_persentase', $kp) == 'Good Loyal|85' ? 'selected' : '' }}>Good Loyal (85%)</option>
+                    </select>
+                    @error('kategori_persentase')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-medium">Nama Barang <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_barang" class="form-control @error('nama_barang') is-invalid @enderror" value="{{ old('nama_barang', $customer->nama_barang) }}" placeholder="Contoh: Honda Vario 150" required>
+                    @error('nama_barang')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-medium">Nilai Barang (Rp) <span class="text-danger">*</span></label>
+                    <input type="number" name="nilai_barang" class="form-control @error('nilai_barang') is-invalid @enderror" value="{{ old('nilai_barang', $customer->nilai_barang) }}" placeholder="Contoh: 15000000" required>
+                    @error('nilai_barang')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            </div>
+
             <h6 class="fw-bold text-dark border-bottom pb-2 mt-4 mb-3"><i class="bi bi-sliders me-1 text-secondary"></i> Indikator Kelayakan Nasabah</h6>
 
             <div class="row">

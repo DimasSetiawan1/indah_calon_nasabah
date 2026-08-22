@@ -15,20 +15,32 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4" width="8%">No</th>
-                        <th>Nama Lengkap</th>
-                        <th width="30%">Alamat</th>
-                        <th width="20%">No. HP</th>
-                        <th class="text-center pe-4" width="18%">Aksi</th>
+                        <th class="ps-4" width="5%">No</th>
+                        <th>Nama Lengkap (Umur)</th>
+                        <th>Pengajuan Barang</th>
+                        <th>Kategori</th>
+                        <th class="text-center pe-4" width="15%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($customers as $key => $customer)
                     <tr>
                         <td class="ps-4 text-muted">{{ $key + 1 }}</td>
-                        <td class="fw-bold">{{ $customer->name }}</td>
-                        <td class="text-muted small">{{ \Illuminate\Support\Str::limit($customer->address, 40) }}</td>
-                        <td>{{ $customer->phone ?? '-' }}</td>
+                        <td class="fw-bold">
+                            {{ $customer->name }} <br>
+                            <span class="badge bg-secondary">{{ $customer->umur ? $customer->umur.' Tahun' : '-' }}</span>
+                        </td>
+                        <td class="text-muted small">
+                            <strong>{{ $customer->nama_barang ?? '-' }}</strong> <br>
+                            Rp {{ number_format((float)$customer->nilai_barang, 0, ',', '.') }}
+                        </td>
+                        <td>
+                            @if($customer->kategori_nasabah)
+                                <span class="badge bg-info text-dark">{{ $customer->kategori_nasabah }} ({{ $customer->persentase_pinjaman }}%)</span>
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td class="text-center pe-4">
                             <a href="{{ route('customers.detail', $customer->id) }}" class="btn btn-sm btn-outline-info" title="Detail Hasil Evaluasi">
                                 <i class="bi bi-eye"></i>

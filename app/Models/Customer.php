@@ -10,7 +10,7 @@ class Customer extends Model
     use HasFactory;
 
     protected $table = 'nasabah';
-    protected $fillable = ['nik', 'name', 'address', 'phone', 'topsis_score', 'topsis_rank', 'status_persetujuan'];
+    protected $fillable = ['nik', 'name', 'address', 'phone', 'topsis_score', 'topsis_rank', 'status_persetujuan', 'nama_barang', 'nilai_barang', 'umur', 'kategori_nasabah', 'persentase_pinjaman'];
 
     public function assessments()
     {

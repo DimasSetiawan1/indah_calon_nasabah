@@ -52,6 +52,22 @@
                     <small class="text-muted d-block">Alamat Lengkap</small>
                     <span class="fw-bold text-dark fs-6">{{ $customer->address ?? '-' }}</span>
                 </div>
+                <div class="col-md-3 mt-3">
+                    <small class="text-muted d-block">Umur</small>
+                    <span class="fw-bold text-dark fs-6">{{ $customer->umur ?? '-' }} Tahun</span>
+                </div>
+                <div class="col-md-3 mt-3">
+                    <small class="text-muted d-block">Pengajuan Barang</small>
+                    <span class="fw-bold text-dark fs-6">{{ $customer->nama_barang ?? '-' }}</span>
+                </div>
+                <div class="col-md-3 mt-3">
+                    <small class="text-muted d-block">Nilai Barang</small>
+                    <span class="fw-bold text-dark fs-6">Rp {{ number_format((float)$customer->nilai_barang, 0, ',', '.') }}</span>
+                </div>
+                <div class="col-md-3 mt-3">
+                    <small class="text-muted d-block">Kategori & Persentase</small>
+                    <span class="fw-bold text-dark fs-6">{{ $customer->kategori_nasabah ?? '-' }} ({{ $customer->persentase_pinjaman }}%)</span>
+                </div>
             </div>
 
             {{-- <h6 class="fw-bold text-dark border-bottom pb-2 mt-4 mb-3"><i
@@ -94,8 +110,10 @@
                     class="bi bi-info-circle-fill me-1 text-secondary"></i> Penjelasan & Catatan Rekomendasi System</h6>
 
             @php
+                $isAgeInvalid = ($customer->umur < 21 || $customer->umur > 60);
                 $isEligible = ($customer->topsis_rank !== null && $customer->topsis_rank <= 3) || ($customer->topsis_score >= 0.5);
-                $isRejected = ($customer->status_persetujuan === 'ditolak') || (!$isEligible && $customer->topsis_score !== null);
+                $isRejected = ($customer->status_persetujuan === 'ditolak') || (!$isEligible && $customer->topsis_score !== null) || $isAgeInvalid;
+                $nilaiPinjaman = ($customer->nilai_barang && $customer->persentase_pinjaman) ? ($customer->nilai_barang * $customer->persentase_pinjaman / 100) : 0;
             @endphp
 
             @if($isRejected)
@@ -109,15 +127,18 @@
                             <h6 class="fw-bold text-danger mb-1">Status Rekomendasi: TIDAK LAYAK / DITOLAK</h6>
                             <p class="text-dark mb-0 small">
                                 <strong>Alasan & Penjelasan:</strong> Calon nasabah atas nama
-                                <strong>{{ $customer->name }}</strong> dinyatakan <strong>TIDAK LAYAK</strong> karena belum
-                                memenuhi standar minimum indikator kelayakan kredit PT FIFGROUP. Kombinasi faktor indikator
-                                penilaian belum memenuhi ambang batas aman pembiayaan.
+                                <strong>{{ $customer->name }}</strong> dinyatakan <strong>TIDAK LAYAK</strong> 
+                                @if($isAgeInvalid)
+                                    karena <strong>Umur tidak memenuhi syarat ({{ $customer->umur }} Tahun)</strong>. Ketentuan umur adalah minimal 21 tahun dan maksimal 60 tahun.
+                                @else
+                                    karena belum memenuhi standar minimum indikator kelayakan kredit PT FIFGROUP. Kombinasi faktor indikator penilaian belum memenuhi ambang batas aman pembiayaan.
+                                @endif
                             </p>
                         </div>
                     </div>
                 </div>
             @else
-                <div class="card border-0 bg-success bg-opacity-10 rounded-3 p-4">
+                <div class="card border-0 bg-success bg-opacity-10 rounded-3 p-4 mb-3">
                     <div class="d-flex align-items-start">
                         <div class="bg-success text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
                             style="width: 42px; height: 42px;">
@@ -131,6 +152,22 @@
                                 kelayakan kredit PT FIFGROUP. Profil indikator nasabah berada pada tingkat risiko yang rendah
                                 dan sangat direkomendasikan untuk disetujui.
                             </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card border-0 bg-primary bg-opacity-10 rounded-3 p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-primary text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                            style="width: 42px; height: 42px;">
+                            <i class="bi bi-cash-stack fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-primary mb-1">Estimasi Nilai Pinjaman yang Disetujui</h6>
+                            <p class="text-dark mb-0 small">
+                                Berdasarkan Kategori Nasabah <strong>{{ $customer->kategori_nasabah ?? '-' }} ({{ $customer->persentase_pinjaman ?? 0 }}%)</strong> dan Nilai Barang <strong>Rp {{ number_format((float)$customer->nilai_barang, 0, ',', '.') }}</strong>, maka estimasi nilai pinjaman maksimal yang direkomendasikan adalah sebesar:
+                            </p>
+                            <h4 class="fw-bold text-primary mt-2 mb-0">Rp {{ number_format($nilaiPinjaman, 0, ',', '.') }}</h4>
                         </div>
                     </div>
                 </div>
